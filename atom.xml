@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Cloudy1225&#39;s Blog</title>
+  
+  <subtitle>a cloud belongs to me</subtitle>
+  <link href="http://cloudy1225.github.io/atom.xml" rel="self"/>
+  
+  <link href="http://cloudy1225.github.io/"/>
+  <updated>2022-04-04T15:02:15.811Z</updated>
+  <id>http://cloudy1225.github.io/</id>
+  
+  <author>
+    <name>Cloudy</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>网络层</title>
+    <link href="http://cloudy1225.github.io/2022/04/04/wang-luo-ceng/"/>
+    <id>http://cloudy1225.github.io/2022/04/04/wang-luo-ceng/</id>
+    <published>2022-04-04T15:01:08.000Z</published>
+    <updated>2022-04-04T15:02:15.811Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2</summary>
+        
+      
+    
+    
+    
+    <category term="计网" scheme="http://cloudy1225.github.io/categories/%E8%AE%A1%E7%BD%91/"/>
+    
+    
+    <category term="计网" scheme="http://cloudy1225.github.io/tags/%E8%AE%A1%E7%BD%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Algorithm_Diary</title>
+    <link href="http://cloudy1225.github.io/2022/03/28/algorithm-diary/"/>
+    <id>http://cloudy1225.github.io/2022/03/28/algorithm-diary/</id>
+    <published>2022-03-28T15:33:11.000Z</published>
+    <updated>2022-04-08T11:46:20.273Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h4 id=&quot;n-皇后dfs回溯&quot;&gt;1. N 皇后：DFS+回溯&lt;/h4&gt;
+&lt;p&gt;n 皇后问题 研究的是如何将 n 个皇后放置在 n×n
+的棋盘上，并且使皇后彼此之间不能相互攻击。&lt;/p&gt;
+&lt;p&gt;给你一个整数 n ，返回所有不同的 n 皇后问题</summary>
+        
+      
+    
+    
+    
+    <category term="Algorithm" scheme="http://cloudy1225.github.io/categories/Algorithm/"/>
+    
+    
+    <category term="Algorithm" scheme="http://cloudy1225.github.io/tags/Algorithm/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>数据链路层</title>
+    <link href="http://cloudy1225.github.io/2022/03/25/shu-ju-lian-lu-ceng/"/>
+    <id>http://cloudy1225.github.io/2022/03/25/shu-ju-lian-lu-ceng/</id>
+    <published>2022-03-24T16:15:26.000Z</published>
+    <updated>2022-03-28T15:36:32.443Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;数据链路层&quot;&gt;数据链路层&lt;/h2&gt;
+&lt;p&gt;数据链路层使用的信道主要有以下两种类型：&lt;/p&gt;
+&lt;ol</summary>
+        
+      
+    
+    
+    
+    <category term="计网" scheme="http://cloudy1225.github.io/categories/%E8%AE%A1%E7%BD%91/"/>
+    
+    
+    <category term="计网" scheme="http://cloudy1225.github.io/tags/%E8%AE%A1%E7%BD%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>C-plus-plus-I/O</title>
+    <link href="http://cloudy1225.github.io/2022/03/16/c-plus-plus-i-o/"/>
+    <id>http://cloudy1225.github.io/2022/03/16/c-plus-plus-i-o/</id>
+    <published>2022-03-16T10:19:12.000Z</published>
+    <updated>2022-03-16T11:37:06.579Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;c-io&quot;&gt;C++ I/O&lt;/h2&gt;
+&lt;h3 id=&quot;c-yyds&quot;&gt;C yyds&lt;/h3&gt;
+&lt;pre class=&quot;line-numbers language-c&quot; data-language=&quot;c&quot;&gt;&lt;code</summary>
+        
+      
+    
+    
+    
+    <category term="Programming Language" scheme="http://cloudy1225.github.io/categories/Programming-Language/"/>
+    
+    
+    <category term="C++" scheme="http://cloudy1225.github.io/tags/C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>3数据预处理</title>
+    <link href="http://cloudy1225.github.io/2022/03/11/3-shu-ju-yu-chu-li/"/>
+    <id>http://cloudy1225.github.io/2022/03/11/3-shu-ju-yu-chu-li/</id>
+    <published>2022-03-11T15:01:49.000Z</published>
+    <updated>2022-03-14T14:57:11.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;数据预处理&quot;&gt;3</summary>
+        
+      
+    
+    
+    
+    <category term="Data Mining" scheme="http://cloudy1225.github.io/categories/Data-Mining/"/>
+    
+    
+    <category term="Data Mining" scheme="http://cloudy1225.github.io/tags/Data-Mining/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2认识数据</title>
+    <link href="http://cloudy1225.github.io/2022/03/10/2-ren-shi-shu-ju/"/>
+    <id>http://cloudy1225.github.io/2022/03/10/2-ren-shi-shu-ju/</id>
+    <published>2022-03-10T15:16:54.000Z</published>
+    <updated>2022-03-11T08:04:25.759Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;认识数据&quot;&gt;2 认识数据&lt;/h2&gt;
+&lt;h3 id=&quot;数据类型与统计&quot;&gt;2.1 数据类型与统计&lt;/h3&gt;
+&lt;p&gt;数据集由数据对象组成。（表）&lt;/p&gt;
+&lt;p&gt;一个数据对象代表一个实体。（元组）&lt;/p&gt;
+&lt;p&gt;属性 (attribute)</summary>
+        
+      
+    
+    
+    
+    <category term="Data Mining" scheme="http://cloudy1225.github.io/categories/Data-Mining/"/>
+    
+    
+    <category term="Data Mining" scheme="http://cloudy1225.github.io/tags/Data-Mining/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>建站随笔</title>
+    <link href="http://cloudy1225.github.io/2022/03/06/jian-zhan-sui-bi/"/>
+    <id>http://cloudy1225.github.io/2022/03/06/jian-zhan-sui-bi/</id>
+    <published>2022-03-06T06:40:59.000Z</published>
+    <updated>2022-03-06T08:55:44.935Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;最开始想搭建个人博客是在上学期期末，当时在Github寻找我选修的
+”数据库概论” 这门课程作业的答案，
+还真让我找到了同级AI大佬的课程笔记。也在那时看到了他的个人博客 &lt;a
+href=&quot;https://orangex4.cool/&quot;&gt;OrangeX4&#39;s</summary>
+        
+      
+    
+    
+    
+    <category term="随笔感想" scheme="http://cloudy1225.github.io/categories/%E9%9A%8F%E7%AC%94%E6%84%9F%E6%83%B3/"/>
+    
+    
+    <category term="碎碎念" scheme="http://cloudy1225.github.io/tags/%E7%A2%8E%E7%A2%8E%E5%BF%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://cloudy1225.github.io/2022/03/03/hello-world/"/>
+    <id>http://cloudy1225.github.io/2022/03/03/hello-world/</id>
+    <published>2022-03-03T11:51:36.973Z</published>
+    <updated>2022-03-06T10:57:43.741Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very
+first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+</feed>
