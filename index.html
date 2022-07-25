@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hui-Demo</title>
+    <script src="mvvm.js"></script>
+    <style>
+        .test {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div id="test">
+        <p><strong>地址</strong></p>
+        <p v-text="address" v-bind:class="test"></p>
+        <input type="text" v-model="address">
+        <p>{{address+" 划分如下"}}:</p>
+        <div>
+            {{adInfo.province+":  "}}
+            <input type="text" @change="onChange" v-model="adInfo.province">
+        </div>
+        <div>
+            {{adInfo.city+":  "}}
+            <input type="text" @change="onChange" v-model="adInfo.city">
+        </div>
+        <div>
+            {{adInfo.district+":  "}}
+            <input type="text" @change="onChange" v-model="adInfo.district">
+        </div>
+        <button @click="reset">重置</button>
+    </div>
+</div>
+
+<script>
+    let vm =new MVVM({
+        el: '#test',
+        data: {
+            address: '江苏省南京市栖霞区',
+            adInfo: {
+                province: '江苏省',
+                city: '南京市',
+                district: '栖霞区'
+            }
+        },
+        methods: {
+            onChange() {
+              this.address = this.adInfo.province+this.adInfo.city+this.adInfo.district
+            },
+            reset() {
+                this.address = '江苏省南京市栖霞区'
+                this.adInfo = {
+                    province: '江苏省',
+                    city: '南京市',
+                    district: '栖霞区'
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>
