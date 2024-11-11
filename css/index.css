@@ -37,6 +37,9 @@ TABLE {
 .venue {
 	FONT-SIZE: 16px
 }
+.description {
+	FONT-SIZE: 16px
+}
 TABLE A {
 	COLOR: black; TEXT-DECORATION: none
 }
