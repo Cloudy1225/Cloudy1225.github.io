@@ -106,3 +106,47 @@ A.thumbnail:hover {
 .inbox {
 	PADDING-BOTTOM: 7px; MARGIN-TOP: 5px
 }
+.photo-gallery {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+    background: #fff;
+}
+.gallery-photo {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: opacity 0.25s;
+    z-index: 1;
+}
+.photo-prev, .photo-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(230,230,230,0.5);
+    border: none;
+    border-radius: 40%;
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 2;
+    opacity: 0.7;
+    transition: background 0.2s, opacity 0.2s;
+    display: none;
+    padding: 0;
+}
+.photo-prev:hover, .photo-next:hover {
+    background: #ececec;
+    opacity: 1;
+}
+.photo-prev { left: 5px; }
+.photo-next { right: 5px; }
+.photo-gallery:hover .photo-prev,
+.photo-gallery:hover .photo-next {
+    display: block;
+}
