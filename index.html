@@ -2,707 +2,890 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yunhui Liu's Homepage</title>
     <meta name="author" content="Yunhui Liu">
-    <meta name="description" content="Yunhui Liu, 刘云辉, Ph.D. student at Nanjing University.">
-    <link rel="stylesheet" type="text/css" href="./css/index.css">
-    <script src="./js/index.js"></script>
+    <meta name="description" content="Yunhui Liu, Ph.D. student at Nanjing University.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (via CDN for simplicity) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0a2245', // Kept your original dark blue
+                        accent: '#2563eb',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar for news box */
+        .news-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .news-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .news-scroll::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        .news-scroll::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        /* Photo Gallery Styles */
+        .gallery-container {
+            position: relative;
+            width: 55%; /* Reduced significantly for mobile */
+            max-width: 200px; /* Max width constraint */
+            margin: 0 auto 1.5rem auto;
+            aspect-ratio: 3/4; /* Modern way to maintain aspect ratio */
+            overflow: hidden;
+            border-radius: 0.75rem;
+            background-color: #f3f4f6;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Desktop alignment: Align left to match text */
+        @media (min-width: 768px) {
+            .gallery-container {
+                margin: 0 0 1.5rem 0;
+                width: 180px; /* Fixed smaller width for desktop */
+                max-width: 180px;
+            }
+        }
+
+        /* Fallback for browsers not supporting aspect-ratio */
+        @supports not (aspect-ratio: 3/4) {
+            .gallery-container {
+                padding-top: 133.33%; /* 4:3 ratio fallback */
+            }
+            .gallery-container::before {
+                content: '';
+                float: left;
+                padding-top: 133.33%;
+            }
+            .gallery-container::after {
+                content: '';
+                display: table;
+                clear: both;
+            }
+        }
+
+        .gallery-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.2s;
+            opacity: 0;
+            z-index: 10;
+        }
+        .gallery-container:hover .nav-btn {
+            opacity: 1;
+        }
+        .nav-btn:hover {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .prev-btn { left: 10px; }
+        .next-btn { right: 10px; }
+
+        /* Font for Chinese Name */
+        .chinese-name {
+            font-family: "STXingkai", "华文行楷", "Xingkai SC", "KaiTi", "楷体", serif;
+        }
+    </style>
 </head>
+<body class="bg-white text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-900">
 
-<body>
-<div id="content">
+    <div class="max-w-6xl mx-auto px-4 py-12 md:py-16 flex flex-col md:flex-row gap-12">
 
-    <div id="news">
-        <h2>News</h2><br>
+        <!-- LEFT SIDEBAR (Profile) -->
+        <aside class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
+            <div class="md:sticky md:top-8">
 
-        <b>13 Jan 2026</b><br>
-        <span class="easylink">
-            Two papers on <b>(Foundational) Graph Anomaly Detection</b> are accepted by <b>WWW 2026</b>!
-        </span><br><br>
+                <!-- Photo Gallery -->
+                <div class="gallery-container shadow-sm group">
+                    <img id="current-photo" src="" alt="Yunhui Liu" class="gallery-photo" onerror="this.src='https://ui-avatars.com/api/?name=Yunhui+Liu&background=0a2245&color=fff&size=256'">
+                    <button class="nav-btn prev-btn" id="btn-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="nav-btn next-btn" id="btn-next"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
 
-        <b>24 Nov 2025</b><br>
-        <span class="easylink">
-            One paper on <b>LLM for Text-Attributed Graph Learning</b> is accepted by <b>KDD 2026</b>!
-        </span><br><br>
+                <!-- Name & Title -->
+                <div class="text-center md:text-left px-0 md:px-0">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-1">Yunhui Liu</h1>
+                    <p class="chinese-name text-3xl font-bold text-gray-700 mb-4">刘云辉</p>
 
-        <b>08 Nov 2025</b><br>
-        <span class="easylink">
-            Two papers on <b>Multi-Modal Entity Alignment</b> and <b>Knowledge Editing</b> are accepted by <b>AAAI 2026</b>!
-        </span><br><br>
-
-        <b>17 July 2025</b><br>
-        <span class="easylink">
-            Excited to start my research internship at Ant Group, mentored by <a href="https://yongchao-liu.github.io" target="_blank">Dr. Yongchao Liu</a>!
-        </span><br><br>
-
-        <b>13 July 2025</b><br>
-        <span class="easylink">
-            One paper on <b>GNN-to-MLP Knowledge Distillation</b> is accepted by <b>TKDE 2025</b>!
-        </span><br><br>
-
-        <!-- <b>07 Feb 2025</b><br>
-        <span class="easylink">
-            Honored to be invited to serve as a reviewer for the top-tier data mining conference KDD 2025 and journal TKDE!
-        </span><br><br> -->
-
-        <b>25 Jan 2025</b><br>
-        <span class="easylink">
-            One paper on <b>GNN-to-MLP Knowledge Distillation</b> is accepted by <b>DASFAA 2025</b>!
-        </span><br><br>
-
-        <b>21 Jan 2025</b><br>
-        <span class="easylink">
-            One paper on <b>Heterogeneous Text-Attributed Graph</b> is accepted by <b>WWW 2025</b>!
-        </span><br><br>
-
-        <b>21 Dec 2024</b><br>
-        <span class="easylink">
-            One paper on <b>GAE for Link Prediction</b> is accepted by <b>ICASSP 2025</b>!
-        </span><br><br>
-
-        <!-- <b>18 Nov 2024</b><br>
-        <span class="easylink">
-            My model <b>StackOverflow-RoBERTa-base-Sentiment</b> has garnered <b>3,048,297+</b> downloads on 🤗!
-        </span><br><br> -->
-
-        <b>24 Oct 2024</b><br>
-        <span class="easylink">
-            One paper on <b>Graph Self-Supervised Learning</b> is accepted by <b>Neural Networks 2024</b>!
-        </span><br><br>
-
-        <b>20 July 2024</b><br>
-        <span class="easylink">
-            One paper on <b>Attributed Graph Clustering</b> is accepted by <b>TKDE 2024</b>!
-        </span><br><br>
-
-        <b>16 July 2024</b><br>
-        <span class="easylink">
-            One paper on <b>Attributed Graph Clustering</b> is accepted by <b>CIKM 2024</b>!
-        </span><br><br>
-
-        <b>27 May 2024</b><br>
-        <span class="easylink">
-            One paper on <b>Graph Self-Supervised Learning</b> is accepted by <b>ECML-PKDD 2024</b>!
-        </span><br><br>
-    </div>
-
-
-    <div id="left">
-        <table style="background-color:white;">
-            <tbody>
-            <tr>
-                <td valign="center">
-                    <!-- <img src="./images/photo.jpg" height="220" align="left" alt="photo"> -->
-                    <div class="photo-gallery" style="height:220px; width:170px;">
-                        <img class="gallery-photo" style="height:220px;width:170px;object-fit:cover;display:none;" alt="photo">
-                        <button class="photo-prev">&lt;</button>
-                        <button class="photo-next">&gt;</button>
+                    <div class="text-sm space-y-2 mb-6 text-gray-700">
+                        <p class="font-medium text-primary">Ph.D. Student</p>
+                        <p>State Key Laboratory for Novel Software Technology</p>
+                        <p>Software Institute</p>
+                        <p>Nanjing University, China</p>
                     </div>
-                </td>
-                <!-- <td valign="center" width="2%"></td> -->
-                <td valign="center" halign="left">
-                    <p style="margin-left:0px; font-size: 20px;">
-                        <b>Yunhui Liu</b>
+
+                    <!-- Social Links -->
+                    <div class="flex justify-center md:justify-start gap-4 mb-8">
+                        <a href="mailto:lyhcloudy1225@gmail.com" class="text-gray-600 hover:text-accent transition-colors" title="Email">
+                            <i class="fa-solid fa-envelope fa-lg"></i>
+                        </a>
+                        <a href="https://github.com/Cloudy1225" target="_blank" class="text-gray-600 hover:text-accent transition-colors" title="GitHub">
+                            <i class="fa-brands fa-github fa-lg"></i>
+                        </a>
+                        <a href="https://scholar.google.com/citations?user=-UGa1fsAAAAJ&hl=en" target="_blank" class="text-gray-600 hover:text-accent transition-colors" title="Google Scholar">
+                            <i class="fa-solid fa-graduation-cap fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- RIGHT MAIN CONTENT -->
+        <main class="w-full md:w-2/3 lg:w-3/4 space-y-16">
+
+            <!-- Biography -->
+            <section>
+                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-4 text-gray-900 uppercase tracking-wide text-sm">Biography</h2>
+                <div class="text-gray-700 leading-relaxed space-y-4 text-justify">
+                    <p>
+                        Hi there! I'm a 2nd-year Ph.D. student at Nanjing University, advised by <a href="https://hetieke.cn" target="_blank" class="text-accent hover:underline font-medium">Prof. Tieke He</a> and <a href="https://cs.nju.edu.cn/58/18/c2639a153624/page.htm" target="_blank" class="text-accent hover:underline font-medium">Prof. Jianhua Zhao</a>.
+                        I'm also fortunate to be mentored by <a href="https://yongchao-liu.github.io" target="_blank" class="text-accent hover:underline font-medium">Dr. Yongchao Liu</a> during my research internship at Ant Group.
                     </p>
-
-                    <p style="margin-left:0px;">
-                        <img src="./images/name.png" height="35" alt="name">
+                    <p>
+                        My research is mainly about learning on structured data (e.g., graphs, knowledge graphs, and tabular data), as well as leveraging these techniques to advance real-world applications, from fraud detection to knowledge extraction from unstructured data.
+                        Recently, I've been exploring tabular foundation models and large language models for better structured data learning.
                     </p>
-
-                    <b>Ph.D. Student</b>
-                    <p style="margin-left:0px;">
-                        State Key Laboratory for Novel Software Technology<br>
-                        Software Institute,
-                        Nanjing University,
-                        Nanjing, China
+                    <p>
+                        Earlier in my journey, I worked on topics including self-supervised learning, deep graph clustering, scalable graph learning, and graph anomaly detection.
+                        I remain committed to developing methods that are not only technically sound and scalable, but also practical and impactful in real-world applications.
                     </p>
-                    <!-- <p style="margin-left:0px;">
-                        <a href="https://software.nju.edu.cn/" target="_blank">Software Institute</a><br>
-                        <a href="https://www.nju.edu.cn/" target="_blank">Nanjing University</a><br>
-                    </p> -->
+                </div>
+            </section>
 
-                    <p style="margin-left:0px;">
-                        [<a href="mailto:lyhcloudy1225@gmail.com">Email</a>]
-                        [<a href="https://github.com/Cloudy1225" target="_blank">GitHub</a>]
-                        [<a href="https://scholar.google.com/citations?user=-UGa1fsAAAAJ&hl=en" target="_blank">Google Scholar</a>]
-                    </p>
+            <!-- News -->
+            <section>
+                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-4 text-gray-900 uppercase tracking-wide text-sm">News</h2>
+                <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 max-h-64 overflow-y-auto news-scroll shadow-inner">
+                    <ul class="space-y-3 text-sm">
+                         <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">13 Jan 2026</span>
+                            <span>Two papers on <b>(Foundational) Graph Anomaly Detection</b> accepted by <b>WWW 2026</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">24 Nov 2025</span>
+                            <span>One paper on <b>LLM for Text-Attributed Graph Learning</b> accepted by <b>KDD 2026</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">08 Nov 2025</span>
+                            <span>Two papers on <b>Entity Alignment</b> and <b>Knowledge Editing</b> accepted by <b>AAAI 2026</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">17 Jul 2025</span>
+                            <span>Excited to start my research internship at Ant Group, mentored by <a href="https://yongchao-liu.github.io" target="_blank" class="text-accent hover:underline">Dr. Yongchao Liu</a>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">13 Jul 2025</span>
+                            <span>One paper on <b>GNN-to-MLP Knowledge Distillation</b> accepted by <b>TKDE 2025</b>!</span>
+                        </li>
+                         <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">25 Jan 2025</span>
+                            <span>One paper on <b>GNN-to-MLP Knowledge Distillation</b> accepted by <b>DASFAA 2025</b>!</span>
+                        </li>
+                         <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">21 Jan 2025</span>
+                            <span>One paper on <b>Heterogeneous Text-Attributed Graph</b> accepted by <b>WWW 2025</b>!</span>
+                        </li>
+                         <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">21 Dec 2024</span>
+                            <span>One paper on <b>GAE for Link Prediction</b> accepted by <b>ICASSP 2025</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">24 Oct 2024</span>
+                            <span>One paper on <b>Graph Self-Supervised Learning</b> accepted by <b>Neural Networks 2024</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">20 Jul 2024</span>
+                            <span>One paper on <b>Attributed Graph Clustering</b> accepted by <b>TKDE 2024</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">16 Jul 2024</span>
+                            <span>One paper on <b>Attributed Graph Clustering</b> accepted by <b>CIKM 2024</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">27 May 2024</span>
+                            <span>One paper on <b>Graph Self-Supervised Learning</b> accepted by <b>ECML-PKDD 2024</b>!</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
 
-                    <!-- <p style="margin-left:0px;">
-                        Email: lyhcloudy1225 AT gmail.com</a><br>
-                    </p> -->
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-
-        <div class="box">
-            Hi there! I'm a 2nd-year Ph.D. student at Nanjing University, advised by <a href="https://hetieke.cn" target="_blank">Prof. Tieke He</a> and <a href="https://cs.nju.edu.cn/58/18/c2639a153624/page.htm" target="_blank">Prof. Jianhua Zhao</a>.
-            I'm also fortunate to be mentored by <a href="https://yongchao-liu.github.io" target="_blank">Dr. Yongchao Liu</a> during my research internship at Ant Group.
-            <br>
-            My research is mainly about learning on structured data (e.g., graphs, knowledge graphs, and tabular data), as well as leveraging these techniques to advance real-world applications, from fraud detection to knowledge extraction from unstructured data.
-            Recently, I've been exploring tabular foundation models and large language models for better structured data learning.
-            <br>
-            Earlier in my journey, I worked on topics including self-supervised learning, deep graph clustering, scalable graph learning, and graph anomaly detection.
-            I remain committed to developing methods that are not only technically sound and scalable, but also practical and impactful in real-world applications.
-            <br><br>
-
-            <h2>Publications</h2>
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Tabular Foundation Models are Strong Graph Anomaly Detectors</span>
-                            <br>
-                            <span class="authors">
+            <!-- Publications -->
+            <section>
+                <!-- SELECTED PUBLICATIONS -->
+                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-6 text-gray-900 uppercase tracking-wide text-sm">Selected Publications</h2>
+                <div class="space-y-6 mb-12">
+                     <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
+                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">Tabular Foundation Models are Strong Graph Anomaly Detectors</h3>
+                            <div class="text-sm text-gray-600 mt-1">
                                 <b>Yunhui Liu</b>, Tieke He, Yongchao Liu, Can Yi, Hong Jin, Chuntao Hong
-                            </span>
-                            <br>
-                            <span class="venue">WWW 2026 (Short Paper)</span>
-                        </td>
-                    </tr>
+                            </div>
+                            <div class="text-sm italic text-gray-500 mt-1">WWW 2026 (Short Paper)</div>
+                            <div class="mt-2 flex gap-3 text-xs font-medium">
+                                <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-regular fa-file-pdf"></i> Paper
+                                </a>
+                                <a href="https://github.com/Cloudy1225/TFM4GAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-brands fa-github"></i> Code
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/TFM4GAD" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Mitigating Homophily Disparity in Graph Anomaly Detection: A Scalable and Adaptive Approach</span>
-                            <br>
-                            <span class="authors">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
+                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">Mitigating Homophily Disparity in Graph Anomaly Detection: A Scalable and Adaptive Approach</h3>
+                            <div class="text-sm text-gray-600 mt-1">
                                 <b>Yunhui Liu</b>, Qizhuo Xie, Yinfeng Chen, Xudong Jin, Tao Zheng, Bin Chong, Tieke He
-                            </span>
-                            <br>
-                            <span class="venue">WWW 2026</span>
-                        </td>
-                    </tr>
+                            </div>
+                            <div class="text-sm italic text-gray-500 mt-1">WWW 2026</div>
+                            <div class="mt-2 flex gap-3 text-xs font-medium">
+                                <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-regular fa-file-pdf"></i> Paper
+                                </a>
+                                <a href="https://github.com/Cloudy1225/SAGAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-brands fa-github"></i> Code
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/SAGAD" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Learning Hierarchical Knowledge in Text-Rich Networks with Taxonomy-Informed Representation Learning</span>
-                            <br>
-                            <span class="authors">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
+                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">Learning Hierarchical Knowledge in Text-Rich Networks with Taxonomy-Informed Representation Learning</h3>
+                            <div class="text-sm text-gray-600 mt-1">
                                 <b>Yunhui Liu</b>, Yongchao Liu, Yinfeng Chen, Chuntao Hong, Tao Zheng, Tieke He
-                            </span>
-                            <br>
-                            <span class="venue">KDD 2026</span>
-                        </td>
-                    </tr>
+                            </div>
+                            <div class="text-sm italic text-gray-500 mt-1">KDD 2026</div>
+                            <div class="mt-2 flex gap-3 text-xs font-medium">
+                                <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-regular fa-file-pdf"></i> Paper
+                                </a>
+                                <a href="https://github.com/Cloudy1225/TIER" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-brands fa-github"></i> Code
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/TIER" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">On Modality Weighting and Specificity for Multi-Modal Entity Alignment</span>
-                            <br>
-                            <span class="authors">
-                                Yu Xing, Qizhuo Xie, <b>Yunhui Liu</b>, Qing Gu, Tao Zheng, Bin Chong, Tieke He
-                            </span>
-                            <br>
-                            <span class="venue">AAAI 2026</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/mikumifa/HUMEA" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">EchoEdit: Consistent Multi-Hop Question Answering via Ripple Control in Knowledge Editing</span>
-                            <br>
-                            <span class="authors">
-                                JinWei Shi, Wenxuan Huang, Yu Xing, <b>Yunhui Liu</b>, Tao Zheng, Bin Chong, Tieke He
-                            </span>
-                            <br>
-                            <span class="venue">AAAI 2026</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/jinweiAi/EchoEdit" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2411.14035" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Teaching MLPs to Master Heterogeneous Graph-Structured Knowledge for Efficient and Accurate Inference</span>
-                            <br>
-                            <span class="authors">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
+                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">Teaching MLPs to Master Heterogeneous Graph-Structured Knowledge for Efficient and Accurate Inference</h3>
+                            <div class="text-sm text-gray-600 mt-1">
                                 <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Jianhua Zhao, Hongzhi Yin
-                            </span>
-                            <br>
-                            <span class="venue">TKDE 2025</span>
-                        </td>
-                    </tr>
+                            </div>
+                            <div class="text-sm italic text-gray-500 mt-1">TKDE 2025</div>
+                            <div class="mt-2 flex gap-3 text-xs font-medium">
+                                <a href="https://arxiv.org/abs/2411.14035" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-regular fa-file-pdf"></i> Paper
+                                </a>
+                                <a href="https://github.com/Cloudy1225/HG2M" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-brands fa-github"></i> Code
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/HG2M" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2502.05864" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Learning Accurate, Efficient, and Interpretable MLPs on Multiplex Graphs via Node-wise Multi-View Ensemble Distillation</span>
-                            <br>
-                            <span class="authors">
-                                <b>Yunhui Liu</b>, Zhen Tao, Xiang Zhao, Jianhua Zhao, Tao Zheng, Tieke He
-                            </span>
-                            <br>
-                            <span class="venue">DASFAA 2025</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/MGFNN" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2412.08937" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Multi-Scale Heterogeneous Text-Attributed Graph Datasets From Diverse Domains</span>
-                            <br>
-                            <span class="authors">
-                                <b>Yunhui Liu</b>, Qizhuo Xie, Jinwei Shi, Jiaxu Shen, Tieke He
-                            </span>
-                            <br>
-                            <span class="venue">WWW 2025 (Resource Track)</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/HTAG" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2502.05868" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Norm-Augmented Graph AutoEncoders for Link Prediction</span>
-                            <br>
-                            <span class="authors">
-                                <b>Yunhui Liu</b>, Huaisong Zhang, Xinyi Gao, Liuye Guo, Zhen Tao, Tieke He
-                            </span>
-                            <br>
-                            <span class="venue">ICASSP 2025</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/GAE-NA" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2411.01157" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Negative-Free Self-Supervised Gaussian Embedding of Graphs</span>
-                            <br>
-                            <span class="authors">
-                                <b>Yunhui Liu</b>, Tieke He, Tao Zheng, Jianhua Zhao
-                            </span>
-                            <br>
-                            <span class="venue">Neural Networks 2024</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/SSGE" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2408.03765" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
-                            </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Reliable Node Similarity Matrix Guided Contrastive Graph Clustering</span>
-                            <br>
-                            <span class="authors">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
+                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">Reliable Node Similarity Matrix Guided Contrastive Graph Clustering</h3>
+                            <div class="text-sm text-gray-600 mt-1">
                                 <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Tao Zheng, Jianhua Zhao, Hongzhi Yin
-                            </span>
-                            <br>
-                            <span class="venue">TKDE 2024</span>
-                        </td>
-                    </tr>
+                            </div>
+                            <div class="text-sm italic text-gray-500 mt-1">TKDE 2024</div>
+                            <div class="mt-2 flex gap-3 text-xs font-medium">
+                                <a href="https://arxiv.org/abs/2408.03765" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-regular fa-file-pdf"></i> Paper
+                                </a>
+                                <a href="https://github.com/Cloudy1225/NS4GC" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                    <i class="fa-brands fa-github"></i> Code
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/NS4GC" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
+                <!-- FULL PUBLICATIONS (Collapsed by default) -->
+                <div class="flex items-center justify-between border-b border-gray-200 pb-2 mb-6 cursor-pointer hover:bg-gray-50 transition-colors py-2 pr-2 pl-0 rounded group" onclick="togglePubs()">
+                    <h2 class="text-xl font-bold text-gray-900 uppercase tracking-wide text-sm">Full Publications</h2>
+                    <button id="toggle-pubs-btn" class="text-sm font-medium text-accent group-hover:text-blue-700 flex items-center gap-2">
+                        <span>Expand Full List</span>
+                        <i class="fa-solid fa-chevron-down transition-transform duration-300" id="toggle-icon"></i>
+                    </button>
+                </div>
+
+                <div id="full-pubs-container" class="space-y-8 hidden transition-all duration-500 ease-in-out">
+
+                    <!-- Year 2026 -->
+                    <div class="relative">
+                        <div class="sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-2 mb-4 border-b border-gray-100">
+                            <h3 class="text-2xl font-bold text-slate-200">2026</h3>
+                        </div>
+
+                        <div class="space-y-8 pl-2 border-l-2 border-slate-100 ml-2">
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Tabular Foundation Models are Strong Graph Anomaly Detectors</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Tieke He, Yongchao Liu, Can Yi, Hong Jin, Chuntao Hong
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">WWW 2026 (Short Paper)</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/TFM4GAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Mitigating Homophily Disparity in Graph Anomaly Detection: A Scalable and Adaptive Approach</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Qizhuo Xie, Yinfeng Chen, Xudong Jin, Tao Zheng, Bin Chong, Tieke He
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">WWW 2026</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/SAGAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Learning Hierarchical Knowledge in Text-Rich Networks with Taxonomy-Informed Representation Learning</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Yongchao Liu, Yinfeng Chen, Chuntao Hong, Tao Zheng, Tieke He
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">KDD 2026</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/TIER" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">On Modality Weighting and Specificity for Multi-Modal Entity Alignment</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        Yu Xing, Qizhuo Xie, <b>Yunhui Liu</b>, Qing Gu, Tao Zheng, Bin Chong, Tieke He
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">AAAI 2026</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/mikumifa/HUMEA" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">EchoEdit: Consistent Multi-Hop Question Answering via Ripple Control in Knowledge Editing</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        JinWei Shi, Wenxuan Huang, Yu Xing, <b>Yunhui Liu</b>, Tao Zheng, Bin Chong, Tieke He
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">AAAI 2026</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/jinweiAi/EchoEdit" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Year 2025 -->
+                    <div class="relative">
+                        <div class="sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-2 mb-4 border-b border-gray-100">
+                            <h3 class="text-2xl font-bold text-slate-200">2025</h3>
+                        </div>
+
+                        <div class="space-y-8 pl-2 border-l-2 border-slate-100 ml-2">
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Teaching MLPs to Master Heterogeneous Graph-Structured Knowledge for Efficient and Accurate Inference</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Jianhua Zhao, Hongzhi Yin
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">TKDE 2025</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/HG2M" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Learning Accurate, Efficient, and Interpretable MLPs on Multiplex Graphs via Node-wise Multi-View Ensemble Distillation</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Zhen Tao, Xiang Zhao, Jianhua Zhao, Tao Zheng, Tieke He
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">DASFAA 2025</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org/abs/2502.05864" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/MGFNN" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Multi-Scale Heterogeneous Text-Attributed Graph Datasets From Diverse Domains</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Qizhuo Xie, Jinwei Shi, Jiaxu Shen, Tieke He
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">WWW 2025 (Resource Track)</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org/abs/2412.08937" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/HTAG" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Norm-Augmented Graph AutoEncoders for Link Prediction</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Huaisong Zhang, Xinyi Gao, Liuye Guo, Zhen Tao, Tieke He
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">ICASSP 2025</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org/abs/2502.05868" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/GAE-NA" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Year 2024 -->
+                    <div class="relative">
+                        <div class="sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-2 mb-4 border-b border-gray-100">
+                            <h3 class="text-2xl font-bold text-slate-200">2024</h3>
+                        </div>
+
+                        <div class="space-y-8 pl-2 border-l-2 border-slate-100 ml-2">
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Negative-Free Self-Supervised Gaussian Embedding of Graphs</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Tieke He, Tao Zheng, Jianhua Zhao
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">Neural Networks 2024</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org/abs/2411.01157" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/SSGE" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Reliable Node Similarity Matrix Guided Contrastive Graph Clustering</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Tao Zheng, Jianhua Zhao, Hongzhi Yin
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">TKDE 2024</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org/abs/2408.03765" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/NS4GC" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Scalable and Adaptive Spectral Embedding for Attributed Graph Clustering</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Tieke He, Qing Wu, Tao Zheng, Jianhua Zhao
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">CIKM 2024 (Short Paper)</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org/abs/2408.05765" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/SASE" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <div class="flex flex-col sm:flex-row gap-4 pl-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Bootstrap Latents of Nodes and Neighbors for Graph Self-Supervised Learning</h3>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <b>Yunhui Liu</b>, Huaisong Zhang, Tieke He, Tao Zheng, Jianhua Zhao
+                                    </div>
+                                    <div class="text-sm italic text-gray-500 mt-1">ECML-PKDD 2024</div>
+                                    <div class="mt-2 flex gap-3 text-xs font-medium">
+                                        <a href="https://arxiv.org/abs/2408.05087" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-regular fa-file-pdf"></i> Paper
+                                        </a>
+                                        <a href="https://github.com/Cloudy1225/BLNN" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
+                                            <i class="fa-brands fa-github"></i> Code
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+             <!-- Projects -->
+            <section>
+                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-6 text-gray-900 uppercase tracking-wide text-sm">Projects</h2>
+                <div class="space-y-4">
+                     <div class="flex flex-col gap-1">
+                        <div class="font-bold text-gray-900">StackOverflow-RoBERTa-base-Sentiment</div>
+                        <p class="text-sm text-gray-700">
+                             A fine-tuned RoBERTa-base model for sentiment analysis on software engineering texts. It has garnered <b>3,108,129+</b> downloads on Hugging Face🤗 since June 2023.
+                        </p>
+                        <div class="mt-1 flex gap-3 text-xs font-medium">
+                            <a href="https://huggingface.co/Cloudy1225/stackoverflow-roberta-base-sentiment" target="_blank" class="text-accent hover:underline">
+                                [Hugging Face]
                             </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2408.05765" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
+                            <a href="https://huggingface.co/spaces/Cloudy1225/stackoverflow-sentiment-analysis" target="_blank" class="text-accent hover:underline">
+                                [Demo]
                             </a>
-                        </td>
+                        </div>
+                    </div>
 
-                        <td rowspan="2">
-                            <span class="title">Scalable and Adaptive Spectral Embedding for Attributed Graph Clustering</span>
-                            <br>
-                            <span class="authors">
-                                <b>Yunhui Liu</b>, Tieke He, Qing Wu, Tao Zheng, Jianhua Zhao
-                            </span>
-                            <br>
-                            <span class="venue">CIKM 2024 (Short Paper)</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/SASE" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
+                    <div class="flex flex-col gap-1">
+                        <div class="font-bold text-gray-900">Awesome Link Prediction</div>
+                        <p class="text-sm text-gray-700">
+                            A curated and continuously updated collection of papers and resources on link prediction across graphs, temporal graphs, heterogeneous graphs, etc. Community contributions and stars are appreciated.
+                        </p>
+                        <div class="mt-1 flex gap-3 text-xs font-medium">
+                            <a href="https://github.com/Cloudy1225/Awesome-Link-Prediction" target="_blank" class="text-accent hover:underline">
+                                [GitHub]
                             </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        </div>
+                    </div>
 
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="left">
-                            <a href="https://arxiv.org/abs/2408.05087" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20">
-                                <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/>
-                                <br>PDF
-                            </svg>
+                    <div class="flex flex-col gap-1">
+                        <div class="font-bold text-gray-900">Heterogeneous Text-Attributed Graph Datasets</div>
+                        <p class="text-sm text-gray-700">
+                            A collection of large, diverse benchmark datasets for heterogeneous text-attributed graphs (HTAGs), covering multiple domains such as movies, social, academia, literature, and patents.
+                        </p>
+                        <div class="mt-1 flex gap-3 text-xs font-medium">
+                            <a href="https://doi.org/10.1145/3701716.3715302" target="_blank" class="text-accent hover:underline">
+                                [WWW 2025]
                             </a>
-                        </td>
-
-                        <td rowspan="2">
-                            <span class="title">Bootstrap Latents of Nodes and Neighbors for Graph Self-Supervised Learning</span>
-                            <br>
-                            <span class="authors">
-                                <b>Yunhui Liu</b>, Huaisong Zhang, Tieke He, Tao Zheng, Jianhua Zhao
-                            </span>
-                            <br>
-                            <span class="venue">ECML-PKDD 2024</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="left">
-                            <a href="https://github.com/Cloudy1225/BLNN" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" width="20">
-                                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
-                                <br>Code
-                            </svg>
+                            <a href="https://arxiv.org/abs/2412.08937" target="_blank" class="text-accent hover:underline">
+                                [arXiv]
                             </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <a href="https://github.com/Cloudy1225/HTAG" target="_blank" class="text-accent hover:underline">
+                                [GitHub]
+                            </a>
+                            <a href="https://huggingface.co/datasets/Cloudy1225/HTAG" target="_blank" class="text-accent hover:underline">
+                                [Hugging Face]
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
+            <!-- Experience -->
+             <section>
+                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-6 text-gray-900 uppercase tracking-wide text-sm">Experience</h2>
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between">
+                        <div>
+                            <div class="font-bold text-gray-900"><a href="https://www.antgroup.com/en" target="_blank" class="hover:underline">Ant Group</a></div>
+                            <div class="text-sm text-gray-700">Research Intern</div>
+                            <div class="text-sm text-gray-600 mt-1">Mentor: <a href="https://yongchao-liu.github.io" target="_blank" class="text-accent hover:underline">Dr. Yongchao Liu</a></div>
+                        </div>
+                        <div class="text-right sm:text-right">
+                            <div class="text-sm text-gray-500">July 2025 - Present</div>
+                            <div class="text-sm text-gray-400">Hangzhou, China</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-            <h2>Projects</h2>
-            <table>
-                <tbody>
-                <tr>
-                    <td><span class="title">StackOverflow-RoBERTa-base-Sentiment</span> <br>
-                        <span class="description">
-                            A fine-tuned RoBERTa-base model for sentiment analysis on software engineering texts.
-                            <br>
-                            It has garnered <b>3,108,129+</b> downloads on Hugging Face🤗 since June 2023.
-                            <br>
-                            [<a href="https://huggingface.co/Cloudy1225/stackoverflow-roberta-base-sentiment" target="_blank">Hugging Face</a> ]
-                            [<a href="https://huggingface.co/spaces/Cloudy1225/stackoverflow-sentiment-analysis" target="_blank">Demo</a>]
-                        </span>
-                    </td></tr></tbody>
-            </table>
+            <!-- Education -->
+            <section>
+                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-6 text-gray-900 uppercase tracking-wide text-sm">Education</h2>
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between">
+                        <div>
+                            <div class="font-bold text-gray-900">Nanjing University (NJU)</div>
+                            <div class="text-sm text-gray-700">Ph.D. Student in Software Engineering</div>
+                            <div class="text-sm text-gray-600 mt-1">Advisor: <a href="https://hetieke.cn" target="_blank" class="text-accent hover:underline">Prof. Tieke He</a> and <a href="https://cs.nju.edu.cn/58/18/c2639a153624/page.htm" target="_blank" class="text-accent hover:underline">Prof. Jianhua Zhao</a></div>
+                        </div>
+                        <div class="text-right sm:text-right">
+                            <div class="text-sm text-gray-500">Sept. 2024 - Present</div>
+                            <div class="text-sm text-gray-400">Nanjing, China</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-between">
+                        <div>
+                            <div class="font-bold text-gray-900">Nanjing University (NJU)</div>
+                            <div class="text-sm text-gray-700">Bachelor in Software Engineering</div>
+                            <div class="text-sm text-gray-600 mt-1">Advisor: <a href="https://hetieke.cn" target="_blank" class="text-accent hover:underline">Prof. Tieke He</a></div>
+                        </div>
+                        <div class="text-right sm:text-right">
+                            <div class="text-sm text-gray-500">Sept. 2020 - June 2024</div>
+                            <div class="text-sm text-gray-400">Nanjing, China</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
+            <!-- Services & Honors (Grid) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <section>
+                    <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-4 text-gray-900 uppercase tracking-wide text-sm">Services</h2>
 
-            <h2>Services</h2>
-            <table>
-                <tbody>
-                <tr>
-                    <td><span class="title">PC Member/Reviewer:</span> <br>
-                        <span class="description">
-                        <!--Subreviewer for SIGIR 2025, ECAI 2025 <br>-->
-                        Reviewer for KDD 2025, ICANN 2025 <br>
-                        Reviewer for Pattern Recognition (PR) <br>
-                        Reviewer for IEEE Transactions on Knowledge and Data Engineering (TKDE)
-                        </span>
-                    </td></tr></tbody>
-            </table>
-            <table>
-                <tbody>
-                <tr>
-                    <td><span class="title">Teaching Assistant:</span> <br>
-                        <span class="description">
-                        Big Data Analytics, Nanjing University, Fall 2024 <br>
-                        Data Management Fundamentals, Nanjing University, Spring 2025
-                        </span>
-                    </td></tr></tbody>
-            </table>
+                    <div class="mb-4">
+                        <h3 class="font-bold text-gray-900 text-sm mb-2">Program Committee Member / Reviewer</h3>
+                        <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                            <li>KDD 2025, ICANN 2025</li>
+                            <li>Pattern Recognition (PR)</li>
+                            <li>IEEE Transactions on Knowledge and Data Engineering (TKDE)</li>
+                        </ul>
+                    </div>
 
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-sm mb-2">Teaching Assistant</h3>
+                        <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                            <li>Big Data Analytics (Fall 2024)</li>
+                            <li>Data Management Fundamentals (Spring 2025)</li>
+                        </ul>
+                    </div>
+                </section>
 
-            <h2>Experiences</h2>
-            <table>
-                <tbody>
-                <tr>
-                    <td><a href="https://www.antgroup.com/en" target="_blank" class="title">Ant Group</a> <br>
-                        Research Intern <span style="margin-left: 200px;">July. 2025 - Present, Hangzhou</span> <br>
-                        Advisor: <a href="https://yongchao-liu.github.io" target="_blank">Dr. Yongchao Liu</a>
-                    </td></tr></tbody>
-            </table>
+                <section>
+                    <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-4 text-gray-900 uppercase tracking-wide text-sm">Honors</h2>
+                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                        <li>China National Scholarship, 2025</li>
+                    </ul>
+                </section>
+            </div>
 
+            <!-- Footer -->
+            <footer class="pt-12 pb-8 text-center text-xs text-gray-400">
+                <p>&copy; 2026 Yunhui Liu. Hosted on GitHub Pages.</p>
+            </footer>
 
-            <h2>Honors & Awards</h2>
-            <table>
-                <tbody>
-                <tr>
-                    <td><span class="title">University Honors:</span> <br>
-                        <span class="description">
-                        China National Scholarship for Postgraduate at NJU, 2025
-                        </span>
-                    </td></tr></tbody>
-            </table>
-
-
-            <h2>Education</h2>
-            <table>
-                <tbody>
-                <tr>
-                    <td><span class="title">Nanjing University (NJU)</span> <br>
-                        Ph.D. Student in Software Engineering <span style="margin-left: 20px;">Sept. 2024 - Present, Nanjing</span> <br>
-                        Advisor: <a href="https://hetieke.cn" target="_blank">Prof. Tieke He</a> and <a href="https://cs.nju.edu.cn/58/18/c2639a153624/page.htm" target="_blank">Prof. Jianhua Zhao</a>
-                    </td></tr></tbody>
-            </table>
-            <table>
-                <tbody>
-                <tr>
-                    <td><span class="title">Nanjing University (NJU)</span> <br>
-                        Bachelor in Software Engineering <span style="margin-left: 60px;">Sept. 2020 - June 2024, Nanjing</span> <br>
-                        Advisor: <a href="https://hetieke.cn" target="_blank">Prof. Tieke He</a>
-                    </td></tr></tbody>
-            </table>
-        </div>
+        </main>
     </div>
-</div>
 
+    <!-- Script for Photo Gallery Logic -->
+    <script>
+        // Toggle function for publications
+        function togglePubs() {
+            const container = document.getElementById('full-pubs-container');
+            const icon = document.getElementById('toggle-icon');
+            const btnText = document.getElementById('toggle-pubs-btn').querySelector('span');
+
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+                btnText.textContent = 'Collapse Full List';
+            } else {
+                container.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+                btnText.textContent = 'Expand Full List';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const basePath = './images/';
+            const maxPhotos = 20;
+            let photoPaths = [];
+            let currentIndex = 0;
+            const imgElem = document.getElementById('current-photo');
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+
+            // 1. Detect images (try to load photo1.jpg ... photo20.jpg)
+            let loadedCount = 0;
+            let checkCount = 1;
+
+            function preloadImages() {
+                if (checkCount > maxPhotos) {
+                    initGallery();
+                    return;
+                }
+
+                const img = new Image();
+                const path = `${basePath}photo${checkCount}.jpg`;
+
+                img.onload = function() {
+                    photoPaths.push(path);
+                    checkCount++;
+                    preloadImages();
+                };
+
+                img.onerror = function() {
+                    // If photo3 exists but photo2 fails, we keep checking?
+                    // Usually strict naming assumes sequence. We'll stop if one fails to save bandwidth/time,
+                    // or you can set it to continue. Let's stop on error to match original logic approx.
+                    initGallery();
+                };
+
+                img.src = path;
+            }
+
+            function initGallery() {
+                if (photoPaths.length === 0) {
+                    // No local photos found, fallback is already in the HTML 'onerror'
+                    return;
+                }
+
+                // Reverse to show latest first (assuming photo20 is newer than photo1)
+                photoPaths.reverse();
+
+                showPhoto(0);
+
+                // Event Listeners
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + photoPaths.length) % photoPaths.length;
+                    showPhoto(currentIndex);
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % photoPaths.length;
+                    showPhoto(currentIndex);
+                });
+
+                // Removed auto-rotation interval
+            }
+
+            function showPhoto(index) {
+                imgElem.style.opacity = '0'; // fade out
+                setTimeout(() => {
+                    imgElem.src = photoPaths[index];
+                    imgElem.style.opacity = '1'; // fade in
+                }, 200);
+            }
+
+            // Start detection
+            preloadImages();
+        });
+    </script>
 </body>
-
 </html>
