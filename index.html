@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +29,7 @@
                     colors: {
                         primary: '#0a2245', // Kept your original dark blue
                         accent: '#2563eb',
+                        accentHover: '#1d4ed8',
                     }
                 }
             }
@@ -256,400 +258,28 @@
             </section>
 
             <!-- Publications -->
-            <section>
-                <!-- SELECTED PUBLICATIONS -->
-                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-6 text-gray-900 uppercase tracking-wide text-sm">Selected Publications</h2>
-                <div class="space-y-6 mb-12">
-                     <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
-                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
-                                <i class="fa-solid fa-star"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="text-base font-bold text-gray-900 leading-tight">Tabular Foundation Models are Strong Graph Anomaly Detectors</h3>
-                            <div class="text-sm text-gray-600 mt-1">
-                                <b>Yunhui Liu</b>, Tieke He, Yongchao Liu, Can Yi, Hong Jin, Chuntao Hong
-                            </div>
-                            <div class="text-sm italic text-gray-500 mt-1">WWW 2026 (Short Paper)</div>
-                            <div class="mt-2 flex gap-3 text-xs font-medium">
-                                <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-regular fa-file-pdf"></i> Paper
-                                </a>
-                                <a href="https://github.com/Cloudy1225/TFM4GAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-brands fa-github"></i> Code
-                                </a>
-                            </div>
-                        </div>
+            <section id="publications-section">
+                <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-6 text-gray-900 uppercase tracking-wide text-sm flex justify-between items-end">
+                    <span>Publications</span>
+                </h2>
+
+                <div class="mb-8 space-y-4">
+                    <div class="relative w-full">
+                        <input type="text" id="pub-search" placeholder="Search by title, tag, venue, author or year..."
+                               class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors bg-gray-50 focus:bg-white"
+                               oninput="handleSearch(this.value)">
+                        <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
-                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
-                                <i class="fa-solid fa-star"></i>
-                            </div>
+                    <div id="pub-tags" class="flex flex-wrap gap-2">
                         </div>
-                        <div class="flex-grow">
-                            <h3 class="text-base font-bold text-gray-900 leading-tight">Mitigating Homophily Disparity in Graph Anomaly Detection: A Scalable and Adaptive Approach</h3>
-                            <div class="text-sm text-gray-600 mt-1">
-                                <b>Yunhui Liu</b>, Qizhuo Xie, Yinfeng Chen, Xudong Jin, Tao Zheng, Bin Chong, Tieke He
-                            </div>
-                            <div class="text-sm italic text-gray-500 mt-1">WWW 2026</div>
-                            <div class="mt-2 flex gap-3 text-xs font-medium">
-                                <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-regular fa-file-pdf"></i> Paper
-                                </a>
-                                <a href="https://github.com/Cloudy1225/SAGAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-brands fa-github"></i> Code
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
-                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
-                                <i class="fa-solid fa-star"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="text-base font-bold text-gray-900 leading-tight">Learning Hierarchical Knowledge in Text-Rich Networks with Taxonomy-Informed Representation Learning</h3>
-                            <div class="text-sm text-gray-600 mt-1">
-                                <b>Yunhui Liu</b>, Yongchao Liu, Yinfeng Chen, Chuntao Hong, Tao Zheng, Tieke He
-                            </div>
-                            <div class="text-sm italic text-gray-500 mt-1">KDD 2026</div>
-                            <div class="mt-2 flex gap-3 text-xs font-medium">
-                                <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-regular fa-file-pdf"></i> Paper
-                                </a>
-                                <a href="https://github.com/Cloudy1225/TIER" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-brands fa-github"></i> Code
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
-                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
-                                <i class="fa-solid fa-star"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="text-base font-bold text-gray-900 leading-tight">Teaching MLPs to Master Heterogeneous Graph-Structured Knowledge for Efficient and Accurate Inference</h3>
-                            <div class="text-sm text-gray-600 mt-1">
-                                <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Jianhua Zhao, Hongzhi Yin
-                            </div>
-                            <div class="text-sm italic text-gray-500 mt-1">TKDE 2025</div>
-                            <div class="mt-2 flex gap-3 text-xs font-medium">
-                                <a href="https://arxiv.org/abs/2411.14035" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-regular fa-file-pdf"></i> Paper
-                                </a>
-                                <a href="https://github.com/Cloudy1225/HG2M" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-brands fa-github"></i> Code
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="hidden sm:block w-24 flex-shrink-0 pt-1">
-                            <div class="w-full h-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-blue-300">
-                                <i class="fa-solid fa-star"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="text-base font-bold text-gray-900 leading-tight">Reliable Node Similarity Matrix Guided Contrastive Graph Clustering</h3>
-                            <div class="text-sm text-gray-600 mt-1">
-                                <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Tao Zheng, Jianhua Zhao, Hongzhi Yin
-                            </div>
-                            <div class="text-sm italic text-gray-500 mt-1">TKDE 2024</div>
-                            <div class="mt-2 flex gap-3 text-xs font-medium">
-                                <a href="https://arxiv.org/abs/2408.03765" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-regular fa-file-pdf"></i> Paper
-                                </a>
-                                <a href="https://github.com/Cloudy1225/NS4GC" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                    <i class="fa-brands fa-github"></i> Code
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- FULL PUBLICATIONS (Collapsed by default) -->
-                <div class="flex items-center justify-between border-b border-gray-200 pb-2 mb-6 cursor-pointer hover:bg-gray-50 transition-colors py-2 pr-2 pl-0 rounded group" onclick="togglePubs()">
-                    <h2 class="text-xl font-bold text-gray-900 uppercase tracking-wide text-sm">Full Publications</h2>
-                    <button id="toggle-pubs-btn" class="text-sm font-medium text-accent group-hover:text-blue-700 flex items-center gap-2">
-                        <span>Expand Full List</span>
-                        <i class="fa-solid fa-chevron-down transition-transform duration-300" id="toggle-icon"></i>
-                    </button>
-                </div>
-
-                <div id="full-pubs-container" class="space-y-8 hidden transition-all duration-500 ease-in-out">
-
-                    <!-- Year 2026 -->
-                    <div class="relative">
-                        <div class="sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-2 mb-4 border-b border-gray-100">
-                            <h3 class="text-2xl font-bold text-slate-200">2026</h3>
-                        </div>
-
-                        <div class="space-y-8 pl-2 border-l-2 border-slate-100 ml-2">
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Tabular Foundation Models are Strong Graph Anomaly Detectors</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Tieke He, Yongchao Liu, Can Yi, Hong Jin, Chuntao Hong
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">WWW 2026 (Short Paper)</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/TFM4GAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Mitigating Homophily Disparity in Graph Anomaly Detection: A Scalable and Adaptive Approach</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Qizhuo Xie, Yinfeng Chen, Xudong Jin, Tao Zheng, Bin Chong, Tieke He
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">WWW 2026</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/SAGAD" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Learning Hierarchical Knowledge in Text-Rich Networks with Taxonomy-Informed Representation Learning</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Yongchao Liu, Yinfeng Chen, Chuntao Hong, Tao Zheng, Tieke He
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">KDD 2026</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/TIER" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">On Modality Weighting and Specificity for Multi-Modal Entity Alignment</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        Yu Xing, Qizhuo Xie, <b>Yunhui Liu</b>, Qing Gu, Tao Zheng, Bin Chong, Tieke He
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">AAAI 2026</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/mikumifa/HUMEA" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">EchoEdit: Consistent Multi-Hop Question Answering via Ripple Control in Knowledge Editing</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        JinWei Shi, Wenxuan Huang, Yu Xing, <b>Yunhui Liu</b>, Tao Zheng, Bin Chong, Tieke He
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">AAAI 2026</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/jinweiAi/EchoEdit" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div id="publications-list" class="space-y-6">
                     </div>
 
-
-                    <!-- Year 2025 -->
-                    <div class="relative">
-                        <div class="sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-2 mb-4 border-b border-gray-100">
-                            <h3 class="text-2xl font-bold text-slate-200">2025</h3>
-                        </div>
-
-                        <div class="space-y-8 pl-2 border-l-2 border-slate-100 ml-2">
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Teaching MLPs to Master Heterogeneous Graph-Structured Knowledge for Efficient and Accurate Inference</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Jianhua Zhao, Hongzhi Yin
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">TKDE 2025</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/HG2M" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Learning Accurate, Efficient, and Interpretable MLPs on Multiplex Graphs via Node-wise Multi-View Ensemble Distillation</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Zhen Tao, Xiang Zhao, Jianhua Zhao, Tao Zheng, Tieke He
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">DASFAA 2025</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org/abs/2502.05864" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/MGFNN" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                             <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Multi-Scale Heterogeneous Text-Attributed Graph Datasets From Diverse Domains</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Qizhuo Xie, Jinwei Shi, Jiaxu Shen, Tieke He
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">WWW 2025 (Resource Track)</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org/abs/2412.08937" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/HTAG" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Norm-Augmented Graph AutoEncoders for Link Prediction</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Huaisong Zhang, Xinyi Gao, Liuye Guo, Zhen Tao, Tieke He
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">ICASSP 2025</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org/abs/2502.05868" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/GAE-NA" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Year 2024 -->
-                    <div class="relative">
-                        <div class="sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-2 mb-4 border-b border-gray-100">
-                            <h3 class="text-2xl font-bold text-slate-200">2024</h3>
-                        </div>
-
-                        <div class="space-y-8 pl-2 border-l-2 border-slate-100 ml-2">
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Negative-Free Self-Supervised Gaussian Embedding of Graphs</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Tieke He, Tao Zheng, Jianhua Zhao
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">Neural Networks 2024</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org/abs/2411.01157" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/SSGE" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Reliable Node Similarity Matrix Guided Contrastive Graph Clustering</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Tao Zheng, Jianhua Zhao, Hongzhi Yin
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">TKDE 2024</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org/abs/2408.03765" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/NS4GC" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Scalable and Adaptive Spectral Embedding for Attributed Graph Clustering</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Tieke He, Qing Wu, Tao Zheng, Jianhua Zhao
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">CIKM 2024 (Short Paper)</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org/abs/2408.05765" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/SASE" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                             <div class="flex flex-col sm:flex-row gap-4 pl-4">
-                                <div class="flex-grow">
-                                    <h3 class="text-base font-bold text-gray-900 leading-tight">Bootstrap Latents of Nodes and Neighbors for Graph Self-Supervised Learning</h3>
-                                    <div class="text-sm text-gray-600 mt-1">
-                                        <b>Yunhui Liu</b>, Huaisong Zhang, Tieke He, Tao Zheng, Jianhua Zhao
-                                    </div>
-                                    <div class="text-sm italic text-gray-500 mt-1">ECML-PKDD 2024</div>
-                                    <div class="mt-2 flex gap-3 text-xs font-medium">
-                                        <a href="https://arxiv.org/abs/2408.05087" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-regular fa-file-pdf"></i> Paper
-                                        </a>
-                                        <a href="https://github.com/Cloudy1225/BLNN" target="_blank" class="flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors">
-                                            <i class="fa-brands fa-github"></i> Code
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div id="no-results" class="hidden text-center py-8 text-gray-500 text-sm">
+                    No publications found matching your criteria.
                 </div>
             </section>
 
@@ -793,25 +423,8 @@
         </main>
     </div>
 
-    <!-- Script for Photo Gallery Logic -->
     <script>
-        // Toggle function for publications
-        function togglePubs() {
-            const container = document.getElementById('full-pubs-container');
-            const icon = document.getElementById('toggle-icon');
-            const btnText = document.getElementById('toggle-pubs-btn').querySelector('span');
-
-            if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden');
-                icon.style.transform = 'rotate(180deg)';
-                btnText.textContent = 'Collapse Full List';
-            } else {
-                container.classList.add('hidden');
-                icon.style.transform = 'rotate(0deg)';
-                btnText.textContent = 'Expand Full List';
-            }
-        }
-
+        // --- Photo Gallery Logic (Existing) ---
         document.addEventListener('DOMContentLoaded', function() {
             const basePath = './images/';
             const maxPhotos = 20;
@@ -822,7 +435,6 @@
             const nextBtn = document.getElementById('btn-next');
 
             // 1. Detect images (try to load photo1.jpg ... photo20.jpg)
-            let loadedCount = 0;
             let checkCount = 1;
 
             function preloadImages() {
@@ -886,6 +498,341 @@
             // Start detection
             preloadImages();
         });
+
+
+        // --- PUBLICATIONS DATA & LOGIC ---
+
+        const publicationsData = [
+            {
+                title: "Tabular Foundation Models are Strong Graph Anomaly Detectors",
+                authors: "<b>Yunhui Liu</b>, Tieke He, Yongchao Liu, Can Yi, Hong Jin, Chuntao Hong",
+                venue: "WWW 2026 (Short Paper)",
+                year: 2026,
+                tags: ["Anomaly Detection", "Foundation Models", "Tabular Learning", "GNN"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/TFM4GAD", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Mitigating Homophily Disparity in Graph Anomaly Detection: A Scalable and Adaptive Approach",
+                authors: "<b>Yunhui Liu</b>, Qizhuo Xie, Yinfeng Chen, Xudong Jin, Tao Zheng, Bin Chong, Tieke He",
+                venue: "WWW 2026",
+                year: 2026,
+                tags: ["Efficiency & Scalability", "Anomaly Detection", "GNN"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/SAGAD", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Learning Hierarchical Knowledge in Text-Rich Networks with Taxonomy-Informed Representation Learning",
+                authors: "<b>Yunhui Liu</b>, Yongchao Liu, Yinfeng Chen, Chuntao Hong, Tao Zheng, Tieke He",
+                venue: "KDD 2026",
+                year: 2026,
+                tags: ["Text-Attributed Graph", "Taxonomy", "GNN", "LLM"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/TIER", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Teaching MLPs to Master Heterogeneous Graph-Structured Knowledge for Efficient and Accurate Inference",
+                authors: "<b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Jianhua Zhao, Hongzhi Yin",
+                venue: "TKDE 2025",
+                year: 2025,
+                tags: ["Efficiency & Scalability", "Knowledge Distillation", "GNN"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2411.14035", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/HG2M", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Reliable Node Similarity Matrix Guided Contrastive Graph Clustering",
+                authors: "<b>Yunhui Liu</b>, Xinyi Gao, Tieke He, Tao Zheng, Jianhua Zhao, Hongzhi Yin",
+                venue: "TKDE 2024",
+                year: 2024,
+                tags: ["Graph Clustering", "Self-Supervised Learning", "GNN"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2408.03765", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/NS4GC", icon: "fa-brands fa-github" }
+                ]
+            },
+            // --- Non-Selected (Full) Papers ---
+            {
+                title: "On Modality Weighting and Specificity for Multi-Modal Entity Alignment",
+                authors: "Yu Xing, Qizhuo Xie, <b>Yunhui Liu</b>, Qing Gu, Tao Zheng, Bin Chong, Tieke He",
+                venue: "AAAI 2026",
+                year: 2026,
+                tags: ["Entity Alignment", "Knowledge Graph"],
+                selected: false,
+                links: [
+                     { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                     { name: "Code", url: "https://github.com/mikumifa/HUMEA", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "EchoEdit: Consistent Multi-Hop Question Answering via Ripple Control in Knowledge Editing",
+                authors: "JinWei Shi, Wenxuan Huang, Yu Xing, <b>Yunhui Liu</b>, Tao Zheng, Bin Chong, Tieke He",
+                venue: "AAAI 2026",
+                year: 2026,
+                tags: ["Knowledge Editing", "Question Answering", "LLM"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/jinweiAi/EchoEdit", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Learning Accurate, Efficient, and Interpretable MLPs on Multiplex Graphs via Node-wise Multi-View Ensemble Distillation",
+                authors: "<b>Yunhui Liu</b>, Zhen Tao, Xiang Zhao, Jianhua Zhao, Tao Zheng, Tieke He",
+                venue: "DASFAA 2025",
+                year: 2025,
+                tags: ["Efficiency & Scalability", "Knowledge Distillation", "GNN"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2502.05864", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/MGFNN", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Multi-Scale Heterogeneous Text-Attributed Graph Datasets From Diverse Domains",
+                authors: "<b>Yunhui Liu</b>, Qizhuo Xie, Jinwei Shi, Jiaxu Shen, Tieke He",
+                venue: "WWW 2025 (Resource Track)",
+                year: 2025,
+                tags: ["Dataset & Benchmark", "Text-Attributed Graph", "GNN"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2412.08937", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/HTAG", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Norm-Augmented Graph AutoEncoders for Link Prediction",
+                authors: "<b>Yunhui Liu</b>, Huaisong Zhang, Xinyi Gao, Liuye Guo, Zhen Tao, Tieke He",
+                venue: "ICASSP 2025",
+                year: 2025,
+                tags: ["Link Prediction", "GNN"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2502.05868", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/GAE-NA", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Negative-Free Self-Supervised Gaussian Embedding of Graphs",
+                authors: "<b>Yunhui Liu</b>, Tieke He, Tao Zheng, Jianhua Zhao",
+                venue: "Neural Networks 2024",
+                year: 2024,
+                tags: ["Self-Supervised Learning", "GNN"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2411.01157", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/SSGE", icon: "fa-brands fa-github" }
+                ]
+            },
+             {
+                title: "Scalable and Adaptive Spectral Embedding for Attributed Graph Clustering",
+                authors: "<b>Yunhui Liu</b>, Tieke He, Qing Wu, Tao Zheng, Jianhua Zhao",
+                venue: "CIKM 2024 (Short Paper)",
+                year: 2024,
+                tags: ["Efficiency & Scalability", "Graph Clustering", "GNN"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2408.05765", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/SASE", icon: "fa-brands fa-github" }
+                ]
+            },
+             {
+                title: "Bootstrap Latents of Nodes and Neighbors for Graph Self-Supervised Learning",
+                authors: "<b>Yunhui Liu</b>, Huaisong Zhang, Tieke He, Tao Zheng, Jianhua Zhao",
+                venue: "ECML-PKDD 2024",
+                year: 2024,
+                tags: ["Self-Supervised Learning", "GNN"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2408.05087", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/BLNN", icon: "fa-brands fa-github" }
+                ]
+            }
+        ];
+
+        // 2. STATE MANAGEMENT
+        // Mode can be: 'selected', 'all', 'year', 'tag'
+        // activeValue: stores the year (int) or tag (string)
+        let currentState = {
+            mode: 'selected',
+            activeValue: null,
+            searchQuery: ''
+        };
+
+        // 3. INIT & RENDER
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFilters();
+            renderPublications();
+        });
+
+        function handleSearch(query) {
+            currentState.searchQuery = query.toLowerCase();
+            renderPublications();
+        }
+
+        function setMode(mode, value = null) {
+            // Toggle Logic: if clicking the same filter again, reset to 'all' (optional user preference)
+            // But usually for "Selected" toggling it might go to All.
+            // Here we just set it.
+            if (currentState.mode === mode && currentState.activeValue === value && mode !== 'selected' && mode !== 'all') {
+                // If user clicks "2026" when already on "2026", maybe switch to "All"?
+                // Let's implement easy toggle to "All"
+                currentState.mode = 'all';
+                currentState.activeValue = null;
+            } else {
+                currentState.mode = mode;
+                currentState.activeValue = value;
+            }
+
+            renderFilters();
+            renderPublications();
+        }
+
+        function renderFilters() {
+            const container = document.getElementById('pub-tags');
+            container.innerHTML = '';
+
+            // Helper for Pills
+            function createPill(label, isActive, onClick) {
+                const btn = document.createElement('button');
+                let classes = "pub-tag px-3 py-1 rounded-full text-xs font-medium border transition-colors cursor-pointer ";
+
+                if (isActive) {
+                    classes += "bg-blue-50 text-accent border-blue-200 shadow-sm";
+                } else {
+                    classes += "bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-800";
+                }
+
+                btn.className = classes;
+                btn.textContent = label;
+                btn.onclick = onClick;
+                container.appendChild(btn);
+            }
+
+            // 1. "Selected"
+            createPill('Selected', currentState.mode === 'selected', () => setMode('selected'));
+
+            // 2. "All"
+            createPill('All', currentState.mode === 'all', () => setMode('all'));
+
+            // 3. Years (Extracted dynamically)
+            const allYears = [...new Set(publicationsData.map(p => p.year))].sort((a,b) => b - a);
+            allYears.forEach(year => {
+                const isActive = (currentState.mode === 'year' && currentState.activeValue === year);
+                createPill(year.toString(), isActive, () => setMode('year', year));
+            });
+
+            // 4. Topic Tags
+            const allTags = new Set();
+            publicationsData.forEach(pub => pub.tags.forEach(t => allTags.add(t)));
+            const sortedTags = Array.from(allTags).sort();
+
+            sortedTags.forEach(tag => {
+                const isActive = (currentState.mode === 'tag' && currentState.activeValue === tag);
+                createPill(tag, isActive, () => setMode('tag', tag));
+            });
+        }
+
+        function renderPublications() {
+            const container = document.getElementById('publications-list');
+            const noResults = document.getElementById('no-results');
+            container.innerHTML = '';
+
+            const filtered = publicationsData.filter(pub => {
+                // 1. Mode Filter
+                if (currentState.mode === 'selected') {
+                    if (!pub.selected) return false;
+                } else if (currentState.mode === 'year') {
+                    if (pub.year !== currentState.activeValue) return false;
+                } else if (currentState.mode === 'tag') {
+                    if (!pub.tags.includes(currentState.activeValue)) return false;
+                }
+
+                // 2. Search Filter
+                if (currentState.searchQuery) {
+                    const q = currentState.searchQuery;
+                    const matchTitle = pub.title.toLowerCase().includes(q);
+                    const matchVenue = pub.venue.toLowerCase().includes(q);
+                    const matchYear = pub.year.toString().includes(q);
+                    const matchTags = pub.tags.some(t => t.toLowerCase().includes(q));
+                    const authorText = pub.authors.replace(/<[^>]*>?/gm, '').toLowerCase();
+                    const matchAuth = authorText.includes(q);
+
+                    if (!matchTitle && !matchVenue && !matchTags && !matchAuth && !matchYear) return false;
+                }
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+
+                filtered.forEach(pub => {
+                    const card = document.createElement('div');
+                    card.className = "flex flex-col gap-1 group";
+
+                    const content = document.createElement('div');
+                    content.className = "flex-grow";
+
+                    const title = document.createElement('h3');
+                    title.className = "text-base font-bold text-gray-900 leading-tight group-hover:text-accent transition-colors";
+                    title.textContent = pub.title;
+
+                    const authors = document.createElement('div');
+                    authors.className = "text-sm text-gray-600 mt-1";
+                    authors.innerHTML = pub.authors;
+
+                    const infoLine = document.createElement('div');
+                    infoLine.className = "mt-1 flex flex-wrap gap-x-2 items-center";
+
+                    const venue = document.createElement('span');
+                    venue.className = "text-sm italic text-gray-500 mr-2";
+                    venue.textContent = pub.venue;
+                    infoLine.appendChild(venue);
+
+                    pub.tags.forEach(t => {
+                        const tSpan = document.createElement('span');
+                        tSpan.className = "text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-100 text-gray-500";
+                        tSpan.textContent = t;
+                        infoLine.appendChild(tSpan);
+                    });
+
+                    const linksDiv = document.createElement('div');
+                    linksDiv.className = "mt-2 flex gap-3 text-xs font-medium";
+
+                    pub.links.forEach(link => {
+                        const a = document.createElement('a');
+                        a.href = link.url;
+                        a.target = "_blank";
+                        a.className = "flex items-center gap-1 text-gray-700 hover:text-accent border border-gray-300 rounded px-2 py-0.5 hover:border-accent transition-colors";
+                        a.innerHTML = `<i class="${link.icon}"></i> ${link.name}`;
+                        linksDiv.appendChild(a);
+                    });
+
+                    content.appendChild(title);
+                    content.appendChild(authors);
+                    content.appendChild(infoLine);
+                    content.appendChild(linksDiv);
+
+                    card.appendChild(content);
+                    container.appendChild(card);
+                });
+            }
+        }
     </script>
 </body>
 </html>
