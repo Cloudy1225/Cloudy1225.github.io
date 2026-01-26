@@ -205,7 +205,11 @@
                 <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-4 text-gray-900 uppercase tracking-wide text-sm">News</h2>
                 <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 max-h-64 overflow-y-auto news-scroll shadow-inner">
                     <ul class="space-y-3 text-sm">
-                         <li class="flex gap-3">
+                        <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">26 Jan 2026</span>
+                            <span>One paper on <b>Graph Anomaly Detection</b> accepted by <b>ICLR 2026</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
                             <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">13 Jan 2026</span>
                             <span>Two papers on <b>(Foundational) Graph Anomaly Detection</b> accepted by <b>WWW 2026</b>!</span>
                         </li>
@@ -503,6 +507,18 @@
         // --- PUBLICATIONS DATA & LOGIC ---
 
         const publicationsData = [
+            {
+                title: "Towards Anomaly-Aware Pre-Training and Fine-Tuning for Graph Anomaly Detection",
+                authors: "<b>Yunhui Liu</b>, Jiashun Cheng, Yiqing Lin, Qizhuo Xie, Jia Li, Fugee Tsung, Hongzhi Yin, Tao Zheng, Jianhua Zhao, Tieke He ",
+                venue: "ICLR 2026",
+                year: 2026,
+                tags: ["Anomaly Detection", "Self-Supervised Learning", "GNN"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://openreview.net/forum?id=mAVEAimDwV", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/APF", icon: "fa-brands fa-github" }
+                ]
+            },
             {
                 title: "Tabular Foundation Models are Strong Graph Anomaly Detectors",
                 authors: "<b>Yunhui Liu</b>, Tieke He, Yongchao Liu, Can Yi, Hong Jin, Chuntao Hong",
