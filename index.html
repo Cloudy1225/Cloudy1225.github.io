@@ -205,6 +205,10 @@
                 <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 max-h-64 overflow-y-auto news-scroll shadow-inner">
                     <ul class="space-y-3 text-sm">
                         <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">10 Feb 2026</span>
+                            <span>Released <a href="https://github.com/Cloudy1225/PyAGC" target="_blank" class="text-accent hover:underline"><b>PyAGC</b></a>, a comprehensive library and benchmark for <b>Attributed Graph Clustering</b>!</span>
+                        </li>   
+                        <li class="flex gap-3">
                             <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">26 Jan 2026</span>
                             <span>One paper on <b>Graph Anomaly Detection</b> accepted by <b>ICLR 2026</b>!</span>
                         </li>
@@ -290,7 +294,20 @@
             <section>
                 <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-6 text-gray-900 uppercase tracking-wide text-sm">Projects</h2>
                 <div class="space-y-4">
-                     <div class="flex flex-col gap-1">
+                    <div class="flex flex-col gap-1 border-l-4 border-accent pl-4 py-1 bg-blue-50/40 rounded-r-lg">
+                        <div class="font-bold text-gray-900 text-lg">PyAGC: Attributed Graph Clustering Library</div>
+                        <p class="text-sm text-gray-700">
+                            A modular library for <b>Attributed Graph Clustering (AGC)</b> built on PyTorch Geometric. It unifies 20+ algorithms under the Encode-Cluster-Optimize framework and supports mini-batch training on <b>111M+ nodes</b>.
+                        </p>
+                        <div class="mt-2 flex flex-wrap gap-3 text-xs font-medium">
+                            <a href="https://github.com/Cloudy1225/PyAGC" target="_blank" class="text-accent hover:underline">[GitHub]</a>
+                            <a href="https://pypi.org/project/pyagc" target="_blank" class="text-accent hover:underline">[PyPI]</a>
+                            <a href="https://pyagc.readthedocs.io" target="_blank" class="text-accent hover:underline">[Docs]</a>
+                            <a href="https://arxiv.org/abs/2602.08519" target="_blank" class="text-accent hover:underline">[Paper]</a>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
                         <div class="font-bold text-gray-900">StackOverflow-RoBERTa-base-Sentiment</div>
                         <p class="text-sm text-gray-700">
                              A fine-tuned RoBERTa-base model for sentiment analysis on software engineering texts. It has garnered <b>3,108,129+</b> downloads on Hugging Face🤗 since June 2023.
@@ -351,7 +368,7 @@
                             <div class="text-sm text-gray-600 mt-1">Mentor: <a href="https://yongchao-liu.github.io" target="_blank" class="text-accent hover:underline">Dr. Yongchao Liu</a></div>
                         </div>
                         <div class="text-right sm:text-right">
-                            <div class="text-sm text-gray-500">July 2025 - Present</div>
+                            <div class="text-sm text-gray-500">July 2025 - Feb. 2026</div>
                             <div class="text-sm text-gray-400">Hangzhou, China</div>
                         </div>
                     </div>
@@ -506,6 +523,19 @@
         // --- PUBLICATIONS DATA & LOGIC ---
 
         const publicationsData = [
+            {
+                title: "Bridging Academia and Industry: A Comprehensive Benchmark for Attributed Graph Clustering",
+                authors: "<b>Yunhui Liu</b>, Pengyu Qiu, Yu Xing, Yongchao Liu, Peng Du, Chuntao Hong, Jiajun Zheng, Tao Zheng, Tieke He",
+                venue: "arXiv 2026",
+                year: 2026,
+                tags: ["Dataset & Benchmark", "Graph Clustering", "Efficiency & Scalability", "GNN"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2602.08519", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/PyAGC", icon: "fa-brands fa-github" },
+                    { name: "Docs", url: "https://pyagc.readthedocs.io", icon: "fa-solid fa-book" }
+                ]
+            },
             {
                 title: "Towards Anomaly-Aware Pre-Training and Fine-Tuning for Graph Anomaly Detection",
                 authors: "<b>Yunhui Liu</b>, Jiashun Cheng, Yiqing Lin, Qizhuo Xie, Jia Li, Fugee Tsung, Hongzhi Yin, Tao Zheng, Jianhua Zhao, Tieke He ",
@@ -851,3 +881,4 @@
     </script>
 </body>
 </html>
+
