@@ -207,7 +207,7 @@
                         <li class="flex gap-3">
                             <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">10 Feb 2026</span>
                             <span>Released <a href="https://github.com/Cloudy1225/PyAGC" target="_blank" class="text-accent hover:underline"><b>PyAGC</b></a>, a comprehensive library and benchmark for <b>Attributed Graph Clustering</b>!</span>
-                        </li>   
+                        </li>
                         <li class="flex gap-3">
                             <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">26 Jan 2026</span>
                             <span>One paper on <b>Graph Anomaly Detection</b> accepted by <b>ICLR 2026</b>!</span>
@@ -297,13 +297,15 @@
                     <div class="flex flex-col gap-1 border-l-4 border-accent pl-4 py-1 bg-blue-50/40 rounded-r-lg">
                         <div class="font-bold text-gray-900 text-lg">PyAGC: Attributed Graph Clustering Library</div>
                         <p class="text-sm text-gray-700">
-                            A modular library for <b>Attributed Graph Clustering (AGC)</b> built on PyTorch Geometric. It unifies 20+ algorithms under the Encode-Cluster-Optimize framework and supports mini-batch training on <b>111M+ nodes</b>.
+                            A modular library for <b>Attributed Graph Clustering (AGC)</b> built on PyTorch Geometric. It unifies 20+ algorithms under the Encode-Cluster-Optimize framework and supports mini-batch training on <b>111M+ nodes</b>. Accompanied by a comprehensive <b>survey</b> bridging academia and industry perspectives.
                         </p>
                         <div class="mt-2 flex flex-wrap gap-3 text-xs font-medium">
                             <a href="https://github.com/Cloudy1225/PyAGC" target="_blank" class="text-accent hover:underline">[GitHub]</a>
                             <a href="https://pypi.org/project/pyagc" target="_blank" class="text-accent hover:underline">[PyPI]</a>
                             <a href="https://pyagc.readthedocs.io" target="_blank" class="text-accent hover:underline">[Docs]</a>
-                            <a href="https://arxiv.org/abs/2602.08519" target="_blank" class="text-accent hover:underline">[Paper]</a>
+                            <a href="https://arxiv.org/abs/2602.08519" target="_blank" class="text-accent hover:underline">[Benchmark Paper]</a>
+                            <a href="https://arxiv.org/abs/2603.20829" target="_blank" class="text-accent hover:underline">[Survey Paper]</a>
+                            <a href="https://github.com/Cloudy1225/PyAGC/blob/main/AWESOME_AGC.md" target="_blank" class="text-accent hover:underline">[AWESOME_AGC_Papers]</a>
                         </div>
                     </div>
 
@@ -523,6 +525,18 @@
         // --- PUBLICATIONS DATA & LOGIC ---
 
         const publicationsData = [
+            {
+                title: "Beyond the Academic Monoculture: A Unified Framework and Industrial Perspective for Attributed Graph Clustering",
+                authors: "<b>Yunhui Liu</b>,Yue Liu, Yongchao Liu, Tao Zheng, Stan Z. Li, Xinwang Liu, Tieke He",
+                venue: "arXiv 2026",
+                year: 2026,
+                tags: ["Survey", "Graph Clustering", "GNN"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org/abs/2603.20829", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/PyAGC/blob/main/AWESOME_AGC.md", icon: "fa-brands fa-github" }
+                ]
+            },
             {
                 title: "Bridging Academia and Industry: A Comprehensive Benchmark for Attributed Graph Clustering",
                 authors: "<b>Yunhui Liu</b>, Pengyu Qiu, Yu Xing, Yongchao Liu, Peng Du, Chuntao Hong, Jiajun Zheng, Tao Zheng, Tieke He",
