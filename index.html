@@ -205,6 +205,10 @@
                 <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 max-h-64 overflow-y-auto news-scroll shadow-inner">
                     <ul class="space-y-3 text-sm">
                         <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">06 Apr 2026</span>
+                            <span>Three papers on <b>Knowledge Graph Completion</b>, <b>RL for LLMs Survey</b>, and <b>Dynamic Graph Inference</b> accepted by <b>ACL 2026</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
                             <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">10 Feb 2026</span>
                             <span>Released <a href="https://github.com/Cloudy1225/PyAGC" target="_blank" class="text-accent hover:underline"><b>PyAGC</b></a>, a comprehensive library and benchmark for <b>Attributed Graph Clustering</b>!</span>
                         </li>
@@ -525,6 +529,44 @@
         // --- PUBLICATIONS DATA & LOGIC ---
 
         const publicationsData = [
+            {
+                title: "GS-Quant: Granular Semantic and Generative Structural Quantization for Knowledge Graph Completion",
+                authors: "Qizhuo Xie, <b>Yunhui Liu</b>, Yu Xing, Qianzi Hou, Xudong Jin, Tao Zheng, Tieke He",
+                venue: "ACL 2026",
+                year: 2026,
+                tags: ["Knowledge Graph", "LLM"],
+                selected: true,
+                note: "Deeply involved in idea construction, method design, paper writing, and rebuttal.",
+                links: [
+                    { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "A Survey of Reinforcement Learning for Large Language Models under Data Scarcity: Challenges and Solutions",
+                authors: "Zhiyin Yu, Yuchen Mou, Juncheng Yan, Junyu Luo, Chunchun Chen, Xing Wei, <b>Yunhui Liu</b>, Hongru Sun, Yuxing Zhang, Jun Xu, Yatao Bian, Ming Zhang, Wei Ye, Tieke He, Jie Yang, Guanjie Zheng, Zhonghai Wu, Bo Zhang, LEI BAI, Xiao Luo",
+                venue: "ACL 2026",
+                year: 2026,
+                tags: ["Survey", "Reinforcement Learning", "LLM"],
+                selected: true,
+                note: "Contributed the <em>Agent Self-Evolving</em> section.",
+                links: [
+                    { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com", icon: "fa-brands fa-github" }
+                ]
+            },
+            {
+                title: "Effective Inference on Dynamic Graphs via Entropy Driven Routing",
+                authors: "Yinfeng Chen, Yanbin Wei, <b>Yunhui Liu</b>, Qizhuo Xie, Qianzi Hou, Bin Chong, Tieke He",
+                venue: "ACL 2026 Findings",
+                year: 2026,
+                tags: ["GNN", "LLM"],
+                selected: false,
+                links: [
+                    { name: "Paper", url: "https://arxiv.org", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com", icon: "fa-brands fa-github" }
+                ]
+            },
             {
                 title: "Beyond the Academic Monoculture: A Unified Framework and Industrial Perspective for Attributed Graph Clustering",
                 authors: "<b>Yunhui Liu</b>,Yue Liu, Yongchao Liu, Tao Zheng, Stan Z. Li, Xinwang Liu, Tieke He",
@@ -869,6 +911,14 @@
                         tSpan.textContent = t;
                         infoLine.appendChild(tSpan);
                     });
+
+                    // Show note if exists
+                    if (pub.note) {
+                        const contrib = document.createElement('span');
+                        contrib.className = "text-xs text-gray-400 italic";
+                        contrib.innerHTML = `${pub.note}`;
+                        infoLine.appendChild(contrib);
+                    }
 
                     const linksDiv = document.createElement('div');
                     linksDiv.className = "mt-2 flex gap-3 text-xs font-medium";
