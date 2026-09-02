@@ -1,0 +1,3749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Yunhui Liu – Attributed Graph Clustering Research Presentation</title>
+
+<!-- MathJax for LaTeX rendering -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    packages: {'[+]': ['ams']},
+    tags: 'ams'
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+
+<!-- D3.js -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<style>
+/* ===================== Base Reset & Variables ===================== */
+:root {
+  --bg: #f4f7ff;
+  --surface: #ffffff;
+  --surface2: #eef1fa;
+  --accent: #3b5ef5;
+  --accent2: #7c3aed;
+  --accent3: #059669;
+  --accent4: #d97706;
+  --accent5: #e11d48;
+  --text: #1a2038;
+  --text-muted: #5a6a8a;
+  --border: rgba(59,94,245,0.16);
+  --shadow: 0 4px 20px rgba(59,94,245,0.08);
+  --radius: 16px;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+/* ===================== Slideshow Container ===================== */
+#presentation {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 64px 88px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateX(40px);
+  overflow-y: auto;
+}
+
+.slide.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(0);
+}
+
+.slide.exit {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+/* Gradient backgrounds per section */
+.slide[data-section="intro"]      { background: radial-gradient(ellipse at 20% 50%, rgba(59,94,245,0.07) 0%, transparent 60%), var(--bg); }
+.slide[data-section="about"]      { background: radial-gradient(ellipse at 80% 20%, rgba(124,58,237,0.06) 0%, transparent 55%), var(--bg); }
+.slide[data-section="graph"]      { background: radial-gradient(ellipse at 30% 70%, rgba(5,150,105,0.06) 0%, transparent 55%), var(--bg); }
+.slide[data-section="clustering"] { background: radial-gradient(ellipse at 70% 30%, rgba(217,119,6,0.06) 0%, transparent 55%), var(--bg); }
+.slide[data-section="papers"]     { background: radial-gradient(ellipse at 50% 80%, rgba(59,94,245,0.06) 0%, transparent 60%), var(--bg); }
+.slide[data-section="ofag"]       { background: radial-gradient(ellipse at 60% 40%, rgba(225,29,72,0.05) 0%, transparent 60%), var(--bg); }
+.slide[data-section="results"]    { background: radial-gradient(ellipse at 40% 60%, rgba(5,150,105,0.05) 0%, transparent 55%), var(--bg); }
+
+/* ===================== Navigation ===================== */
+#nav {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 20px rgba(59,94,245,0.1);
+}
+
+#nav button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+#nav button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+#nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+#slide-counter { color: var(--text-muted); font-size: 13px; min-width: 60px; text-align: center; }
+
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.4s ease;
+  z-index: 200;
+}
+
+/* Sidebar TOC */
+#toc {
+  position: fixed;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 100;
+}
+.toc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(59,94,245,0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid rgba(59,94,245,0.25);
+}
+.toc-dot:hover { background: var(--accent2); border-color: var(--accent2); }
+.toc-dot.active { background: var(--accent); width: 10px; height: 10px; border-color: var(--accent); }
+
+/* ===================== Typography ===================== */
+.slide-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+  flex-shrink: 0;
+}
+
+.section-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(108,142,247,0.15);
+  border: 1px solid rgba(108,142,247,0.3);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+h1 { font-size: 52px; font-weight: 800; line-height: 1.1; }
+h2 { font-size: 36px; font-weight: 700; line-height: 1.2; }
+h3 { font-size: 22px; font-weight: 600; }
+h4 { font-size: 17px; font-weight: 600; color: var(--accent); }
+
+.grad-text {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.body-text { font-size: 15px; line-height: 1.75; color: var(--text-muted); }
+.emphasis { color: var(--text); font-weight: 600; }
+
+/* ===================== Cards ===================== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.card-sm {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.card.highlight {
+  border-color: rgba(59,94,245,0.35);
+  background: linear-gradient(135deg, rgba(59,94,245,0.04) 0%, var(--surface) 100%);
+}
+
+.card.green { border-color: rgba(5,150,105,0.35); background: rgba(5,150,105,0.04); }
+.card.purple { border-color: rgba(124,58,237,0.35); background: rgba(124,58,237,0.04); }
+.card.amber { border-color: rgba(217,119,6,0.35); background: rgba(217,119,6,0.04); }
+.card.red { border-color: rgba(225,29,72,0.35); background: rgba(225,29,72,0.04); }
+
+/* ===================== Grid Layouts ===================== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+
+/* ===================== Tags / Badges ===================== */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin: 2px;
+}
+.tag-blue   { background: rgba(59,94,245,0.1); color: #2a4dd4; border: 1px solid rgba(59,94,245,0.25); }
+.tag-purple { background: rgba(124,58,237,0.1); color: #6d28d9; border: 1px solid rgba(124,58,237,0.25); }
+.tag-green  { background: rgba(5,150,105,0.1); color: #065f46; border: 1px solid rgba(5,150,105,0.25); }
+.tag-amber  { background: rgba(217,119,6,0.1); color: #92400e; border: 1px solid rgba(217,119,6,0.25); }
+.tag-red    { background: rgba(225,29,72,0.1); color: #9f1239; border: 1px solid rgba(225,29,72,0.25); }
+
+/* ===================== Timeline ===================== */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+}
+.timeline-item { position: relative; margin-bottom: 18px; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -24px; top: 4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+}
+
+/* ===================== Publication List ===================== */
+.pub-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.pub-item:hover { border-color: rgba(108,142,247,0.5); transform: translateX(4px); }
+.pub-venue { font-size: 12px; font-weight: 700; color: var(--accent); }
+.pub-title { font-size: 14px; font-weight: 600; margin: 4px 0; }
+.pub-authors { font-size: 12px; color: var(--text-muted); }
+
+/* ===================== Formula Box ===================== */
+.formula-box {
+  background: rgba(59,94,245,0.04);
+  border: 1px solid rgba(59,94,245,0.2);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+  font-size: 15px;
+  overflow-x: auto;
+}
+
+/* ===================== Step / Process ===================== */
+.step-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin: 16px 0;
+}
+.step-box {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  position: relative;
+}
+.step-box + .step-box { margin-left: 8px; }
+.step-arrow {
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  font-size: 22px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+.step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+
+/* ===================== Metric Cards ===================== */
+.metric { text-align: center; }
+.metric .value { font-size: 40px; font-weight: 800; line-height: 1; }
+.metric .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* Comparison table */
+.cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cmp-table th { padding: 8px 12px; background: var(--surface2); color: var(--accent); font-weight: 600; text-align: center; border: 1px solid var(--border); }
+.cmp-table td { padding: 8px 12px; border: 1px solid var(--border); text-align: center; color: var(--text-muted); }
+.cmp-table tr:last-child td { color: var(--text); font-weight: 600; }
+.cmp-table tr:last-child { background: rgba(59,94,245,0.05); }
+.cmp-best { color: var(--accent3) !important; font-weight: 700; }
+.cmp-rank { color: var(--accent4) !important; font-weight: 700; }
+.cmp-table.plain tr:last-child { background: transparent; }
+.cmp-table.plain tr:last-child td { color: var(--text-muted); font-weight: 400; }
+
+/* ===================== Divider ===================== */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ===================== SVG / D3 Graphs ===================== */
+.graph-canvas {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+svg text { font-family: inherit; }
+
+.graph-demo-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 12px;
+  border-color: rgba(5, 150, 105, 0.3);
+}
+.graph-demo-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+.graph-demo-title {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.graph-demo-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.graph-demo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.graph-stat {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.graph-demo-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.graph-demo-btn:hover {
+  border-color: var(--accent3);
+  color: var(--accent3);
+  background: rgba(5, 150, 105, 0.06);
+}
+.graph-demo-stage {
+  position: relative;
+  flex: 1;
+  min-height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+  background:
+    radial-gradient(ellipse at 28% 22%, rgba(59, 94, 245, 0.07), transparent 52%),
+    radial-gradient(ellipse at 82% 78%, rgba(225, 29, 72, 0.06), transparent 52%),
+    #f6f8ff;
+  border: 1px solid var(--border);
+}
+.graph-demo-stage svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  min-height: 0;
+  cursor: grab;
+}
+.graph-demo-stage svg:active { cursor: grabbing; }
+.graph-tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+  background: rgba(26, 32, 56, 0.92);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.55;
+  padding: 8px 11px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(26, 32, 56, 0.18);
+  transform: translate(12px, 12px);
+}
+.graph-tooltip[hidden] { display: none; }
+.graph-tooltip .tip-k { color: rgba(255, 255, 255, 0.62); font-size: 10px; }
+.graph-demo-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.graph-legend {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.graph-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+@keyframes hubPulse {
+  0%, 100% { opacity: 0.16; }
+  50% { opacity: 0.34; }
+}
+#graph-demo .hub-glow { animation: hubPulse 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  #graph-demo .hub-glow { animation: none; }
+}
+
+.viz-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 14px 16px 12px;
+}
+.viz-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+.viz-stage {
+  position: relative;
+  flex: 1;
+  min-height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(59, 94, 245, 0.05), transparent 55%),
+    #f6f8ff;
+  border: 1px solid var(--border);
+}
+.viz-stage svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.viz-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.viz-legend {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.viz-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.viz-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.viz-swatch.diamond {
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+
+/* ===================== Highlight boxes ===================== */
+.insight-box {
+  background: linear-gradient(135deg, rgba(59,94,245,0.06), rgba(124,58,237,0.06));
+  border: 1px solid rgba(59,94,245,0.25);
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.insight-box strong { color: var(--accent2); }
+
+.pt-chart { width: 100%; height: 100%; min-height: 0; }
+.pt-chart svg { width: 100%; height: 100%; display: block; }
+.delta-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(225,29,72,0.08);
+  color: var(--accent5);
+  border: 1px solid rgba(225,29,72,0.18);
+}
+.delta-pill.up {
+  background: rgba(5,150,105,0.1);
+  color: var(--accent3);
+  border-color: rgba(5,150,105,0.22);
+}
+
+/* List styles */
+ul.fancy { list-style: none; padding: 0; }
+ul.fancy li {
+  padding: 6px 0 6px 24px;
+  position: relative;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+ul.fancy li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 12px;
+  top: 9px;
+}
+ul.fancy li strong { color: var(--text); }
+
+/* Code style */
+code { font-family: var(--font-mono); font-size: 13px; background: var(--surface2); padding: 2px 6px; border-radius: 4px; color: var(--accent2); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* ========== Keyboard hint ========== */
+#keyboard-hint {
+  position: fixed;
+  bottom: 72px;
+  right: 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.88);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  box-shadow: 0 2px 8px rgba(59,94,245,0.06);
+}
+
+/* ===================== Hyperlinks ===================== */
+a.plink {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(59,94,245,0.4);
+  transition: color 0.15s, border-color 0.15s;
+}
+a.plink:hover { color: var(--accent2); border-color: var(--accent2); }
+
+/* ===================== Title slide ===================== */
+.slide[data-section="intro"] {
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 55% at 8% 12%, rgba(59,94,245,0.16), transparent 58%),
+    radial-gradient(ellipse 50% 45% at 92% 18%, rgba(124,58,237,0.14), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 78% 88%, rgba(5,150,105,0.10), transparent 50%),
+    var(--bg);
+}
+.title-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.title-mesh {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(59,94,245,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,94,245,0.07) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
+}
+.title-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(28px);
+  opacity: 0.85;
+  animation: titleOrb 14s ease-in-out infinite;
+}
+.title-orb-1 {
+  width: 280px; height: 280px; left: -60px; top: 18%;
+  background: rgba(59,94,245,0.22);
+}
+.title-orb-2 {
+  width: 220px; height: 220px; right: 8%; top: -40px;
+  background: rgba(124,58,237,0.20);
+  animation-delay: -4s;
+}
+.title-orb-3 {
+  width: 180px; height: 180px; right: 28%; bottom: 8%;
+  background: rgba(52,211,153,0.16);
+  animation-delay: -8s;
+}
+@keyframes titleOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(18px, -12px) scale(1.08); }
+}
+.title-slide {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr);
+  gap: 36px;
+  align-items: stretch;
+}
+.title-copy {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.title-in {
+  animation: titleRise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--d, 0) * 80ms);
+}
+@keyframes titleRise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.title-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 12px 5px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(59,94,245,0.22);
+  color: var(--accent);
+  backdrop-filter: blur(10px);
+  margin-bottom: 18px;
+}
+.title-kicker-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(59,94,245,0.18);
+  animation: titleDot 2s ease-in-out infinite;
+}
+@keyframes titleDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.82); }
+}
+.title-display {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+.title-display-sub {
+  display: block;
+  margin-top: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.title-en {
+  margin: 14px 0 0;
+  max-width: 38em;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.title-identity {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+  margin-top: 20px;
+  padding: 0;
+  max-width: none;
+  overflow: hidden;
+  background: rgba(255,255,255,0.82);
+  border: 1px solid rgba(59,94,245,0.16);
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(59,94,245,0.10);
+  backdrop-filter: blur(14px);
+}
+.title-photo-wrap {
+  position: relative;
+  min-height: 168px;
+  background: linear-gradient(160deg, #3b5ef5 0%, #1a2038 100%);
+}
+.title-photo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 70%, rgba(255,255,255,0.18));
+}
+.title-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 12% 18%;
+  display: block;
+}
+.title-identity-body {
+  min-width: 0;
+  padding: 12px 16px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.title-name { font-size: 18px; font-weight: 800; color: var(--text); line-height: 1.2; }
+.title-role {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.title-affil { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.title-facts {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+.title-facts strong { color: var(--text); font-weight: 600; }
+.title-contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.title-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  line-height: 1.3;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.title-chip:hover { transform: translateY(-1px); }
+.title-chip-home {
+  color: #fff;
+  background: linear-gradient(135deg, #3b5ef5, #6d4aff);
+  border: 1px solid transparent;
+  box-shadow: 0 4px 12px rgba(59,94,245,0.28);
+}
+.title-chip-home:hover { filter: brightness(1.06); }
+.title-chip-git {
+  color: var(--accent);
+  background: rgba(59,94,245,0.08);
+  border: 1px solid rgba(59,94,245,0.2);
+}
+.title-chip-git:hover { background: rgba(59,94,245,0.14); border-color: var(--accent); }
+.title-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.title-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 22px;
+}
+.title-metric {
+  padding: 12px 12px 11px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(59,94,245,0.12);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(59,94,245,0.05);
+}
+.title-metric b {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.title-metric span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+.title-visual {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(59,94,245,0.18);
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(59,94,245,0.12), transparent 50%),
+    radial-gradient(ellipse at 80% 85%, rgba(124,58,237,0.10), transparent 48%),
+    linear-gradient(180deg, rgba(255,255,255,0.92), rgba(236,240,255,0.96));
+  box-shadow:
+    0 24px 50px rgba(59,94,245,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.85);
+}
+.title-visual::before {
+  content: '';
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 70%;
+  background: conic-gradient(from 180deg, rgba(59,94,245,0.12), rgba(124,58,237,0.08), rgba(52,211,153,0.08), rgba(59,94,245,0.12));
+  filter: blur(30px);
+  pointer-events: none;
+  z-index: 0;
+}
+.title-graph-stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+.title-graph-stage svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+}
+.title-graph-stage .inter-edge {
+  stroke-dasharray: 5 9;
+  animation: titleDash 7s linear infinite;
+}
+.title-graph-stage .hub-aura { animation: hubPulse 2.8s ease-in-out infinite; }
+.title-visual-foot {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.title-visual-arrow { opacity: 0.4; font-weight: 500; }
+@keyframes titleDash {
+  to { stroke-dashoffset: -140; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-in, .title-orb, .title-kicker-dot,
+  .title-graph-stage .inter-edge, .title-graph-stage .hub-aura {
+    animation: none !important;
+  }
+  .title-in { opacity: 1; transform: none; }
+}
+@media (max-width: 980px) {
+  .title-slide { grid-template-columns: 1fr; gap: 18px; }
+  .title-visual { min-height: 240px; max-height: 280px; }
+  .title-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- Sidebar Table of Contents dots -->
+<div id="toc"></div>
+
+<div id="presentation">
+
+<!-- ============================================================
+     SLIDE 0 – TITLE
+     ============================================================ -->
+<div class="slide active" data-section="intro" data-title="Title">
+  <div class="title-bg" aria-hidden="true">
+    <div class="title-mesh"></div>
+    <div class="title-orb title-orb-1"></div>
+    <div class="title-orb title-orb-2"></div>
+    <div class="title-orb title-orb-3"></div>
+  </div>
+  <div class="title-slide">
+    <div class="title-copy">
+      <div class="title-kicker title-in" style="--d:0">
+        <span class="title-kicker-dot"></span>
+        Research Presentation · 2026
+      </div>
+      <h1 class="title-display title-in" style="--d:1">
+        <span class="grad-text">属性图聚类研究</span>
+        <span class="title-display-sub">从对比学习到基础模型</span>
+      </h1>
+      <p class="title-en title-in" style="--d:2">
+        Attributed Graph Clustering: From Contrastive Learning to Foundation Models
+      </p>
+
+      <div class="title-identity title-in" style="--d:3">
+        <div class="title-photo-wrap">
+          <img class="title-photo"
+               src="https://cloudy1225.github.io/images/photo3.jpg"
+               alt="刘云辉 Yunhui Liu"
+               width="1080" height="1440"
+               decoding="async">
+        </div>
+        <div class="title-identity-body">
+          <div class="title-name">刘云辉 · Yunhui Liu</div>
+          <div class="title-role">南京大学 · 软件工程直博三年级</div>
+          <div class="title-affil">计算机软件新技术国家重点实验室 · Ph.D. Student, NJU</div>
+          <ul class="title-facts">
+            <li><strong>导师</strong> · 何铁科教授、赵建华教授</li>
+            <li><strong>实习</strong> · 蚂蚁集团研究实习，Mentor 刘永超博士</li>
+            <li><strong>方向</strong> · 图机器学习（聚类、异常检测、高效推理）、知识增强大模型</li>
+          </ul>
+          <div class="title-contact">
+            <a class="title-chip title-chip-home" href="https://cloudy1225.github.io" target="_blank" rel="noopener">个人主页</a>
+            <a class="title-chip title-chip-git" href="https://github.com/Cloudy1225" target="_blank" rel="noopener">GitHub</a>
+            <a class="title-chip title-chip-git" href="mailto:lyhcloudy1225@gmail.com">Email</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="title-tags title-in" style="--d:4">
+        <span class="tag tag-blue">Attributed Graph Clustering</span>
+        <span class="tag tag-purple">Graph Foundation Model</span>
+        <span class="tag tag-green">Graph Anomaly Detection</span>
+        <span class="tag tag-amber">LLM-Graph Synergy</span>
+      </div>
+
+      <div class="title-metrics title-in" style="--d:5">
+        <div class="title-metric">
+          <b style="color:var(--accent);">10+</b>
+          <span>学术论文</span>
+        </div>
+        <div class="title-metric">
+          <b style="color:var(--accent2); font-size:13px; padding-top:6px;">KDD · ICLR · WWW</b>
+          <span>顶级会议 / 期刊</span>
+        </div>
+        <div class="title-metric">
+          <b style="color:var(--accent3);">3.1M+</b>
+          <span>HF 模型下载</span>
+        </div>
+        <div class="title-metric">
+          <b style="color:var(--accent4);">111M+</b>
+          <span>节点规模支持</span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="title-visual title-in" style="--d:2">
+      <div class="title-graph-stage" id="title-graph"></div>
+      <div class="title-visual-foot">
+        <span style="color:#6c8ef7;">对比学习</span>
+        <span class="title-visual-arrow">→</span>
+        <span style="color:#a78bfa;">真实基准</span>
+        <span class="title-visual-arrow">→</span>
+        <span style="color:#34d399;">基础模型</span>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 1 – ABOUT ME
+     ============================================================ -->
+<div class="slide" data-section="about" data-title="About Me">
+  <div class="slide-header">
+    <span class="section-badge">About</span>
+    <h2>个人简介</h2>
+  </div>
+
+  <div class="grid-2" style="flex:1; gap:24px; align-items:start;">
+    <!-- Left column -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="card highlight">
+        <h4 style="margin-bottom:10px;">🎓 教育背景</h4>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div style="font-weight:700; font-size:14px;">南京大学 · 直博研究生</div>
+            <div style="font-size:13px; color:var(--text-muted);">软件工程 · 2024.09 – 至今（3年级）</div>
+            <div style="font-size:12px; color:var(--accent); margin-top:2px;">导师：何铁科教授、赵建华教授</div>
+          </div>
+          <div class="timeline-item">
+            <div style="font-weight:700; font-size:14px;">南京大学 · 本科</div>
+            <div style="font-size:13px; color:var(--text-muted);">软件工程 · 2020.09 – 2024.06</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card highlight">
+        <h4 style="margin-bottom:10px;">💼 实习经历</h4>
+        <div style="display:flex; align-items:flex-start; gap:12px;">
+          <div style="flex:1;">
+            <div style="font-weight:700; font-size:14px;">蚂蚁集团 · 研究实习生</div>
+            <div style="font-size:13px; color:var(--text-muted);">2025.07 – 2026.02 · 杭州</div>
+            <div style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+              图/表格数据学习 · GraphRAG · 先享后付风控<br>
+              Mentor: <span style="color:var(--accent);">刘永超博士</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card highlight">
+        <h4 style="margin-bottom:10px;">🏆 荣誉奖项</h4>
+        <ul class="fancy">
+          <li><strong>国家奖学金</strong>，2025</li>
+          <li><strong>江苏省研究生创新计划</strong>，2026</li>
+          <li><strong>Insta360 Think Bold 特等奖学金</strong>，2026</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="card highlight">
+        <h4 style="margin-bottom:10px;">🔬 研究方向</h4>
+        <ul class="fancy">
+          <li><strong>图结构数据学习：</strong>图聚类、图异常检测、链接预测</li>
+          <li><strong>基础模型：</strong>图基础模型、表格基础模型</li>
+          <li><strong>大语言模型：</strong>LLM + 知识图谱、文本图</li>
+          <li><strong>工业应用：</strong>欺诈检测、用户分群、GraphRAG</li>
+        </ul>
+      </div>
+
+      <div class="card highlight">
+        <h4 style="margin-bottom:10px;">📦 开源项目</h4>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="card-sm">
+            <div style="font-weight:700; font-size:13px; color:var(--accent);"><a class="plink" href="https://github.com/Cloudy1225/PyAGC" target="_blank">PyAGC</a></div>
+            <div style="font-size:12px; color:var(--text-muted);">属性图聚类统一框架 · 20+ 算法 · 111M 节点支持 · <a class="plink" href="https://pypi.org/project/pyagc" target="_blank">PyPI</a> 开源</div>
+          </div>
+          <div class="card-sm">
+            <div style="font-weight:700; font-size:13px; color:var(--accent2);"><a class="plink" href="https://huggingface.co/Cloudy1225/stackoverflow-roberta-base-sentiment" target="_blank">StackOverflow-RoBERTa</a></div>
+            <div style="font-size:12px; color:var(--text-muted);">HuggingFace 情感分析模型 · <strong style="color:var(--text);">3,108,129+</strong> 下载</div>
+          </div>
+          <div class="card-sm">
+            <div style="font-weight:700; font-size:13px; color:var(--accent3);"><a class="plink" href="https://github.com/Cloudy1225/HTAG" target="_blank">HTAG Datasets</a></div>
+            <div style="font-size:12px; color:var(--text-muted);">异构文本属性图数据集 · WWW 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card highlight">
+        <h4 style="margin-bottom:10px;">✍️ 学术服务</h4>
+        <div style="font-size:13px; color:var(--text-muted); line-height:1.7;">
+          Reviewer: <span style="color:var(--text);">NeurIPS 2026, KDD 2025/26/27, ICANN</span><br>
+          期刊审稿: <span style="color:var(--text);">PR, TKDE</span><br>
+          助教: 大数据分析 (2024), 数据管理基础 (2025)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 2 – WHAT IS A GRAPH
+     ============================================================ -->
+<div class="slide" data-section="graph" data-title="What is a Graph?">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(52,211,153,0.15); border-color:rgba(52,211,153,0.3); color:var(--accent3);">基础知识</span>
+    <h2>什么是图（Graph）？</h2>
+  </div>
+
+  <div class="grid-2" style="flex:1; gap:24px;">
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="card" style="border-color:rgba(52,211,153,0.3);">
+        <h4 style="color:var(--accent3); margin-bottom:10px;">图的数学定义</h4>
+        <div class="formula-box">
+          $\mathcal{G} = (\mathcal{V}, \mathcal{E}, X)$
+          <br><br>
+          $\mathcal{V}$：节点集合（实体），$|\mathcal{V}| = N$<br>
+          $\mathcal{E} \subseteq \mathcal{V} \times \mathcal{V}$：边集合（关系）<br>
+          $X \in \mathbb{R}^{N \times F}$：节点特征矩阵<br>
+          $A \in \{0,1\}^{N \times N}$：邻接矩阵
+        </div>
+        <div class="grid-2" style="gap:10px; margin-top:4px;">
+          <div class="card-sm" style="border-color:rgba(108,142,247,0.4);">
+            <div style="color:var(--accent); font-weight:700; margin-bottom:4px;">拓扑结构</div>
+            <div style="font-size:12px; color:var(--text-muted);">节点间连接关系（邻接矩阵 $A$）</div>
+          </div>
+          <div class="card-sm" style="border-color:rgba(167,139,250,0.4);">
+            <div style="color:var(--accent2); font-weight:700; margin-bottom:4px;">节点属性</div>
+            <div style="font-size:12px; color:var(--text-muted);">每个节点的特征向量（特征矩阵 $X$）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-bottom:12px;">🌍 现实世界中的图</h4>
+        <div class="grid-2" style="gap:10px;">
+          <div class="card-sm">
+            <div style="font-size:20px; margin-bottom:4px;">🧑‍🤝‍🧑</div>
+            <div style="font-size:13px; font-weight:600;">社交网络</div>
+            <div style="font-size:12px; color:var(--text-muted);">节点=用户, 边=关注</div>
+          </div>
+          <div class="card-sm">
+            <div style="font-size:20px; margin-bottom:4px;">🛒</div>
+            <div style="font-size:13px; font-weight:600;">电商图</div>
+            <div style="font-size:12px; color:var(--text-muted);">节点=用户/商品, 边=购买</div>
+          </div>
+          <div class="card-sm">
+            <div style="font-size:20px; margin-bottom:4px;">📚</div>
+            <div style="font-size:13px; font-weight:600;">引用网络</div>
+            <div style="font-size:12px; color:var(--text-muted);">节点=论文, 边=引用</div>
+          </div>
+          <div class="card-sm">
+            <div style="font-size:20px; margin-bottom:4px;">🧬</div>
+            <div style="font-size:13px; font-weight:600;">分子图</div>
+            <div style="font-size:12px; color:var(--text-muted);">节点=原子, 边=化学键</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <strong>为什么需要图神经网络（GNN）？</strong><br>
+        传统深度学习处理序列或网格数据（文本/图像），<br>
+        而图具有不规则拓扑结构。GNN 通过<strong>消息传递</strong>聚合邻居信息，
+        在图上学习节点表示：
+        <div class="formula-box" style="margin-top:8px; font-size:14px;">
+          $h_v^{(l+1)} = \text{UPDATE}\!\left(h_v^{(l)},\; \text{AGG}\!\left(\{h_u^{(l)} : u \in \mathcal{N}(v)\}\right)\right)$
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive D3 graph demo -->
+    <div style="display:flex; flex-direction:column; gap:12px; min-height:0; height:100%;">
+      <div class="card graph-demo-card">
+        <div class="graph-demo-header">
+          <div>
+            <div class="graph-demo-title">交互示例：真实图结构（拖拽节点）</div>
+            <div class="graph-demo-sub">引文网络示意 · 节点 = 论文 · 有向边 = 引用</div>
+          </div>
+          <div class="graph-demo-toolbar">
+            <span class="graph-stat">|V| = 16</span>
+            <span class="graph-stat">|E| = 28</span>
+            <button type="button" id="graph-demo-reset" class="graph-demo-btn" aria-label="重置图布局">重置</button>
+          </div>
+        </div>
+        <div class="graph-demo-stage">
+          <svg id="graph-demo"></svg>
+          <div id="graph-tooltip" class="graph-tooltip" hidden></div>
+        </div>
+        <div class="graph-demo-footer">
+          <div class="graph-legend">
+            <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#3b5ef5;"></span>2014–16</span>
+            <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#7c3aed;"></span>2017–19</span>
+            <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#059669;"></span>2020+</span>
+            <span class="graph-legend-item" style="opacity:0.72;">大小 ∝ 被引次数</span>
+          </div>
+          <div>拖拽固定 · 单击已固定节点可解除</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 3 – GRAPH CLUSTERING
+     ============================================================ -->
+<div class="slide" data-section="clustering" data-title="Graph Clustering">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.3); color:var(--accent4);">核心任务</span>
+    <h2>什么是图聚类（Graph Clustering）？</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:18px;">
+    <div class="grid-2" style="gap:18px;">
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="card" style="border-color:rgba(245,158,11,0.3);">
+          <h4 style="color:var(--accent4); margin-bottom:8px;">任务定义</h4>
+          <div style="font-size:14px; color:var(--text-muted); line-height:1.7;">
+            将图中的节点划分为若干<strong style="color:var(--text);">语义相似</strong>的组（簇），
+            同时利用<strong style="color:var(--text);">节点属性</strong>和<strong style="color:var(--text);">拓扑结构</strong>，
+            且<em style="color:var(--accent4);">无需标签监督</em>。
+          </div>
+          <div class="formula-box" style="margin-top:10px; font-size:14px;">
+            给定 $\mathcal{G}=(A, X)$，找到分配函数：<br>
+            $f: \mathcal{V} \to \{1, 2, \ldots, K\}$<br>
+            使同簇节点相似度高，跨簇节点相似度低
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-bottom:10px;">📊 评估指标</h4>
+          <div class="grid-2" style="gap:8px; font-size:13px;">
+            <div class="card-sm" style="text-align:center;">
+              <div style="color:var(--accent); font-weight:700;">NMI</div>
+              <div style="font-size:11px; color:var(--text-muted);">归一化互信息</div>
+            </div>
+            <div class="card-sm" style="text-align:center;">
+              <div style="color:var(--accent2); font-weight:700;">ACC</div>
+              <div style="font-size:11px; color:var(--text-muted);">聚类准确率</div>
+            </div>
+            <div class="card-sm" style="text-align:center;">
+              <div style="color:var(--accent3); font-weight:700;">ARI</div>
+              <div style="font-size:11px; color:var(--text-muted);">调整兰德指数</div>
+            </div>
+            <div class="card-sm" style="text-align:center;">
+              <div style="color:var(--accent4); font-weight:700;">F1</div>
+              <div style="font-size:11px; color:var(--text-muted);">F1 分数</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clustering visualization -->
+      <div class="card viz-card" style="border-color:rgba(245,158,11,0.3);">
+        <div class="viz-header">
+          <div>
+            <div class="graph-demo-title">可视化：图聚类把节点分成颜色各异的簇</div>
+            <div class="graph-demo-sub">簇内连接紧密 · 簇间连接稀疏 · 无监督划分</div>
+          </div>
+          <span class="graph-stat">K = 4</span>
+        </div>
+        <div class="viz-stage" style="min-height:260px;">
+          <svg id="clustering-demo"></svg>
+        </div>
+        <div class="viz-footer">
+          <div class="viz-legend">
+            <span class="viz-legend-item"><span class="viz-swatch" style="background:#6c8ef7;"></span>簇 1</span>
+            <span class="viz-legend-item"><span class="viz-swatch" style="background:#a78bfa;"></span>簇 2</span>
+            <span class="viz-legend-item"><span class="viz-swatch" style="background:#34d399;"></span>簇 3</span>
+            <span class="viz-legend-item"><span class="viz-swatch" style="background:#f59e0b;"></span>簇 4</span>
+          </div>
+          <div>悬停高亮单簇</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="gap:14px;">
+      <div class="card amber">
+        <h4 style="color:var(--accent4); margin-bottom:8px;">🌐 应用场景</h4>
+        <ul class="fancy" style="font-size:13px;">
+          <li><strong>社区发现：</strong>社交网络用户群组</li>
+          <li><strong>欺诈检测：</strong>异常子图识别</li>
+          <li><strong>用户分群：</strong>电商个性化推荐</li>
+          <li><strong>知识整合：</strong>实体关系挖掘</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:rgba(244,63,94,0.3);">
+        <h4 style="color:var(--accent5); margin-bottom:8px;">⚠️ 主要挑战</h4>
+        <ul class="fancy" style="font-size:13px;">
+          <li><strong>无监督：</strong>无标签指导</li>
+          <li><strong>属性-结构冲突：</strong>图同配性/异配性</li>
+          <li><strong>可扩展性：</strong>百万级节点</li>
+          <li><strong>模型选择：</strong>无验证集调参</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h4 style="color:var(--accent3); margin-bottom:8px;">📈 研究现状</h4>
+        <ul class="fancy" style="font-size:13px;">
+          <li>GNN + 对比学习（如 NS4GC）</li>
+          <li>图自编码器（如 DAEGC）</li>
+          <li>谱聚类方法（如 SASE）</li>
+          <li><strong>基础模型（OFAG）← 我们的工作</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 4 – PUBLICATIONS OVERVIEW
+     ============================================================ -->
+<div class="slide" data-section="papers" data-title="Publications">
+  <div class="slide-header">
+    <span class="section-badge">Papers</span>
+    <h2>研究成果总览</h2>
+  </div>
+
+  <div style="flex:1; overflow-y:auto; padding-right:4px;">
+    <!-- Selected papers grouped -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.08em;">图聚类 · Graph Clustering</div>
+
+      <div class="pub-item" style="border-left:3px solid var(--accent);">
+        <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span class="pub-venue">Under Review @ KDD 2027</span>
+            <div class="pub-title"><a class="plink" href="https://openreview.net/forum?id=HCTcT3DFOF" target="_blank">Towards One-for-All Foundation Model for Attributed Graph Clustering</a> <code>OFAG</code></div>
+            <div class="pub-authors"><strong>Yunhui Liu</strong>, Xudong Jin, Kang Zhang, et al.</div>
+          </div>
+          <div><span class="tag tag-blue">Foundation Model</span><span class="tag tag-purple">Zero-shot</span></div>
+        </div>
+      </div>
+
+      <div class="pub-item">
+        <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span class="pub-venue">arXiv 2026 (Survey)</span>
+            <div class="pub-title"><a class="plink" href="https://arxiv.org/abs/2603.20829" target="_blank">Beyond the Academic Monoculture: A Unified Framework and Industrial Perspective for AGC</a></div>
+            <div class="pub-authors"><strong>Yunhui Liu</strong>, Yue Liu, Yongchao Liu, et al.</div>
+          </div>
+          <div><span class="tag tag-amber">Survey</span></div>
+        </div>
+      </div>
+
+      <div class="pub-item">
+        <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span class="pub-venue">arXiv 2026 (Benchmark)</span>
+            <div class="pub-title"><a class="plink" href="https://arxiv.org/abs/2602.08519" target="_blank">Bridging Academia and Industry: A Comprehensive Benchmark for Attributed Graph Clustering</a> <code><a class="plink" href="https://github.com/Cloudy1225/PyAGC" target="_blank">PyAGC</a></code></div>
+            <div class="pub-authors"><strong>Yunhui Liu</strong>, Pengyu Qiu, Yu Xing, Yongchao Liu, et al.</div>
+          </div>
+          <div><span class="tag tag-green">Benchmark</span></div>
+        </div>
+      </div>
+
+      <div class="pub-item">
+        <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span class="pub-venue">TKDE 2024</span>
+            <div class="pub-title"><a class="plink" href="https://arxiv.org/abs/2408.03765" target="_blank">Reliable Node Similarity Matrix Guided Contrastive Graph Clustering</a> <code>NS4GC</code></div>
+            <div class="pub-authors"><strong>Yunhui Liu</strong>, Xinyi Gao, Tieke He, et al.</div>
+          </div>
+          <div><span class="tag tag-blue">Contrastive</span></div>
+        </div>
+      </div>
+
+      <div class="pub-item">
+        <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span class="pub-venue">CIKM 2024</span>
+            <div class="pub-title"><a class="plink" href="https://arxiv.org/abs/2408.05765" target="_blank">Scalable and Adaptive Spectral Embedding for Attributed Graph Clustering</a> <code>SASE</code></div>
+            <div class="pub-authors"><strong>Yunhui Liu</strong>, Tieke He, Qing Wu, et al.</div>
+          </div>
+          <div><span class="tag tag-amber">Scalable</span></div>
+        </div>
+      </div>
+
+      <div class="pub-item" style="border-left:3px solid var(--accent4);">
+        <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span class="pub-venue">Under Review @ NeurIPS 2026</span>
+            <div class="pub-title"><a class="plink" href="https://openreview.net/forum?id=Rm5u5TMKcq" target="_blank">Uncovering Semantic Hierarchies in Text-Attributed Graphs via Variational EM-based LLM–GNN Synergy</a> <code>SHiFT</code></div>
+            <div class="pub-authors"><strong>Yunhui Liu</strong>, Xudong Jin, Qizhuo Xie, et al.</div>
+          </div>
+          <div><span class="tag tag-amber">Hierarchical</span><span class="tag tag-purple">LLM+GNN</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px; font-weight:700; color:var(--accent5); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.08em;">图异常检测 · Graph Anomaly Detection</div>
+      <div class="pub-item" style="border-left:3px solid var(--accent5);">
+        <span class="pub-venue">ICLR 2026</span>
+        <div class="pub-title"><a class="plink" href="https://openreview.net/forum?id=mAVEAimDwV" target="_blank">Towards Anomaly-Aware Pre-Training and Fine-Tuning for Graph Anomaly Detection</a> <code>APF</code></div>
+        <div class="pub-authors"><strong>Yunhui Liu</strong>, Jiashun Cheng, et al.</div>
+      </div>
+      <div class="pub-item">
+        <span class="pub-venue">WWW 2026</span>
+        <div class="pub-title"><a class="plink" href="https://arxiv.org/abs/2601.17301" target="_blank">Tabular Foundation Models are Strong Graph Anomaly Detectors</a> <code>TFM4GAD</code></div>
+        <div class="pub-authors"><strong>Yunhui Liu</strong>, Tieke He, Yongchao Liu, et al.</div>
+      </div>
+      <div class="pub-item">
+        <span class="pub-venue">WWW 2026</span>
+        <div class="pub-title"><a class="plink" href="https://arxiv.org/abs/2603.08137" target="_blank">Mitigating Homophily Disparity in Graph Anomaly Detection: A Scalable and Adaptive Approach</a> <code>SAGAD</code></div>
+        <div class="pub-authors"><strong>Yunhui Liu</strong>, Qizhuo Xie, et al.</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <div style="font-size:13px; font-weight:700; color:var(--accent3); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.08em;">其他方向</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <div class="card-sm" style="flex:1; min-width:200px;">
+          <span class="pub-venue" style="color:var(--accent3);">KDD 2026</span>
+          <div class="pub-title" style="font-size:13px;"><a class="plink" href="https://arxiv.org/abs/2603.08159" target="_blank">TIER: Taxonomy-Informed Rep. on Text-Rich Networks</a></div>
+        </div>
+        <div class="card-sm" style="flex:1; min-width:200px;">
+          <span class="pub-venue" style="color:var(--accent3);">ACL 2026</span>
+          <div class="pub-title" style="font-size:13px;"><a class="plink" href="https://arxiv.org/abs/2604.21649" target="_blank">GS-Quant: Knowledge Graph Completion w/ LLM</a></div>
+        </div>
+        <div class="card-sm" style="flex:1; min-width:200px;">
+          <span class="pub-venue" style="color:var(--accent3);">TKDE 2025</span>
+          <div class="pub-title" style="font-size:13px;"><a class="plink" href="https://arxiv.org/abs/2411.14035" target="_blank">HG2M: Heterogeneous Graph-to-MLP Distillation</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 5 – RESEARCH JOURNEY (Graph Clustering)
+     ============================================================ -->
+<div class="slide" data-section="papers" data-title="Research Journey">
+  <div class="slide-header">
+    <span class="section-badge">Journey</span>
+    <h2>图聚类研究路线</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
+    <!-- Journey timeline -->
+    <div class="step-row" style="align-items:stretch;">
+      <div class="step-box" style="border-color:rgba(59,94,245,0.35);">
+        <div class="step-num">1</div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent);">对比学习</div>
+        <div style="font-size:10px; color:var(--text-muted); margin-top:3px;">NS4GC · TKDE 2024</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">节点相似度矩阵引导的对比图聚类</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-box" style="border-color:rgba(124,58,237,0.35);">
+        <div class="step-num" style="background:var(--accent2);">2</div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent2);">可扩展性</div>
+        <div style="font-size:10px; color:var(--text-muted); margin-top:3px;">SASE · CIKM 2024</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">线性复杂度谱嵌入，支持大规模图</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-box" style="border-color:rgba(217,119,6,0.35);">
+        <div class="step-num" style="background:var(--accent4);">3</div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent4);">层次聚类</div>
+        <div style="font-size:10px; color:var(--text-muted); margin-top:3px;">SHiFT · UR @ NeurIPS 2026</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">LLM+GNN 协同挖掘语义层次结构</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-box" style="border-color:rgba(5,150,105,0.35);">
+        <div class="step-num" style="background:var(--accent3);">4</div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent3);">工业基准</div>
+        <div style="font-size:10px; color:var(--text-muted); margin-top:3px;">PyAGC · arXiv 2026</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">20+ 算法统一框架，工业图测试</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-box" style="border-color:rgba(225,29,72,0.35); background:rgba(225,29,72,0.03);">
+        <div class="step-num" style="background:var(--accent5);">5</div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent5);">基础模型 ⭐</div>
+        <div style="font-size:10px; color:var(--text-muted); margin-top:3px;">OFAG · UR @ KDD 2027</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">单一模型，零样本聚类任意图</div>
+      </div>
+    </div>
+
+    <!-- Key insight from journey -->
+    <div class="insight-box">
+      <strong>核心洞察（从研究积累到的关键发现）：</strong><br>
+      现有方法存在根本局限——每张新图都需要重新训练、调参，<br>
+      在无标签的非监督聚类任务中，甚至没有验证集来指导模型选择。<br>
+      <strong>能否训练一个通用模型，直接应用于任意属性图？</strong> → OFAG
+    </div>
+
+    <div class="grid-4" style="gap:12px;">
+      <div class="card">
+        <h4 style="margin-bottom:6px; font-size:15px;">NS4GC 核心思想</h4>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+          节点相似度矩阵视角的对比学习：理想矩阵 = 增强邻接矩阵（保留簇内高相似边）。
+          <strong>8 个数据集上最佳均值 &amp; 平均排名。</strong>
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="margin-bottom:6px; font-size:15px;">SASE 核心思想</h4>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+          无参数谱嵌入：$k$ 阶图卷积 + 随机傅里叶特征 + 自适应阶数。
+          <strong>线性复杂度</strong>，ArXiv ACC +6.9%, 5.87× 加速。
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(217,119,6,0.3);">
+        <h4 style="margin-bottom:6px; font-size:15px; color:var(--accent4);">SHiFT 核心思想</h4>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+          EM 框架协同 LLM（分类专家）与 GNN：E 步归纳语义树，M 步对齐层次结构。
+          <strong>输出层次感知embedding与人类可读taxonomy。</strong>
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="margin-bottom:6px; font-size:15px;">PyAGC 核心贡献</h4>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+          Encode–Cluster–Optimize 统一框架，首次 mini-batch 实现，
+          2.7K–111M 节点，工业图测试。<strong>蚂蚁集团实战验证。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 6 – OFAG: MOTIVATION
+     ============================================================ -->
+<div class="slide" data-section="ofag" data-title="OFAG: Motivation">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(244,63,94,0.15); border-color:rgba(244,63,94,0.3); color:var(--accent5);">OFAG</span>
+    <h2>动机：现有方法的根本局限</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:18px;">
+    <div class="card red">
+      <h4 style="color:var(--accent5); margin-bottom:12px;">⚠️ "一图一模型"范式的痛点</h4>
+      <div class="grid-3" style="gap:12px;">
+        <div class="card-sm">
+          <div style="font-size:18px; margin-bottom:4px;">💸</div>
+          <div style="font-weight:600; font-size:13px;">高昂计算代价</div>
+          <div style="font-size:12px; color:var(--text-muted);">每张新图都需从头训练 + 调参</div>
+        </div>
+        <div class="card-sm">
+          <div style="font-size:18px; margin-bottom:4px;">🎯</div>
+          <div style="font-weight:600; font-size:13px;">无标签验证集</div>
+          <div style="font-size:12px; color:var(--text-muted);">无监督聚类无法做超参选择</div>
+        </div>
+        <div class="card-sm">
+          <div style="font-size:18px; margin-bottom:4px;">📐</div>
+          <div style="font-weight:600; font-size:13px;">特征空间不兼容</div>
+          <div style="font-size:12px; color:var(--text-muted);">不同图特征维度/语义各异</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:18px; flex:1;">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h4 style="margin-bottom:10px;">三大核心挑战</h4>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="card-sm" style="border-left:3px solid var(--accent);">
+              <div style="font-weight:600; font-size:13px;">(i) 簇标签排列可变性</div>
+              <div style="font-size:12px; color:var(--text-muted);">$K$ 在不同图上变化，且簇身份无跨图一致含义，无法使用共享输出头</div>
+            </div>
+            <div class="card-sm" style="border-left:3px solid var(--accent2);">
+              <div style="font-weight:600; font-size:13px;">(ii) 推理时无监督信号</div>
+              <div style="font-size:12px; color:var(--text-muted);">测试时无标签、无验证集、无 few-shot 上下文，无法做域适应</div>
+            </div>
+            <div class="card-sm" style="border-left:3px solid var(--accent3);">
+              <div style="font-weight:600; font-size:13px;">(iii) 无监督特征空间对齐</div>
+              <div style="font-size:12px; color:var(--text-muted);">有监督 GFM 通过标签微调解决，聚类无法利用下游监督</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <strong>我们的问题：</strong><br>
+          能否训练一个<strong>冻结的</strong>单一模型，在无图特定训练、<br>
+          微调或超参搜索的情况下，直接用于任意属性图聚类？
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h4 style="margin-bottom:10px;">已有 GFM 方案的局限</h4>
+          <ul class="fancy">
+            <li><strong>文本空间 GFM</strong>（OFA, GraphGPT）：需要文本节点属性 + 数据集特定模板</li>
+            <li><strong>特征对齐 GFM</strong>（GCOPE, UniGraph）：需要目标图微调</li>
+            <li><strong>完全归纳 GFM</strong>（GraphAny, NodePFN）：需要推理时有标签上下文集——<em style="color:var(--accent4);">聚类无法提供</em></li>
+          </ul>
+        </div>
+
+        <div class="card highlight" style="border-color:rgba(244,63,94,0.4);">
+          <h4 style="color:var(--accent5); margin-bottom:8px;">OFAG 的核心思路</h4>
+          <div style="font-size:14px; color:var(--text-muted); line-height:1.7;">
+            借鉴 <strong style="color:var(--text);">Prior-data Fitted Networks（PFN）</strong> 范式，
+            在合成图上学习可复用的聚类推理策略，
+            推理时一次前向传播直接产生簇友好嵌入。
+          </div>
+          <div class="formula-box" style="margin-top:10px; font-size:13px;">
+            Pre-train once on $p(\mathcal{D})$ → Freeze → Apply anywhere
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 7 – OFAG: OVERVIEW / FRAMEWORK
+     ============================================================ -->
+<div class="slide" data-section="ofag" data-title="OFAG: Framework">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(244,63,94,0.15); border-color:rgba(244,63,94,0.3); color:var(--accent5);">OFAG</span>
+    <h2>OFAG 整体框架</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:16px;">
+
+    <!-- Framework overview -->
+    <div class="card" style="border-color:rgba(244,63,94,0.3);">
+          <div style="font-size:14px; font-weight:700; color:var(--accent); margin-bottom:12px;">OFAG = One-for-All Foundation Model for Attributed Graph Clustering &nbsp;·&nbsp; <a class="plink" href="https://openreview.net/forum?id=HCTcT3DFOF" target="_blank">Paper</a> &nbsp;·&nbsp; <a class="plink" href="https://anonymous.4open.science/r/OFAG-0477" target="_blank">Code</a></div>
+      <div class="step-row">
+        <div class="step-box" style="background:rgba(108,142,247,0.08); border-color:rgba(108,142,247,0.4);">
+          <div style="font-size:20px; margin-bottom:6px;">📦</div>
+          <div style="font-weight:700; font-size:13px; color:var(--accent);">CAGM Prior</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">合成属性图生成器<br>覆盖多样化图结构</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-box" style="background:rgba(167,139,250,0.08); border-color:rgba(167,139,250,0.4);">
+          <div style="font-size:20px; margin-bottom:6px;">🔄</div>
+          <div style="font-weight:700; font-size:13px; color:var(--accent2);">SwiFRT Encoder</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">维度无关图编码器<br>每特征通道独立处理</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-box" style="background:rgba(52,211,153,0.08); border-color:rgba(52,211,153,0.4);">
+          <div style="font-size:20px; margin-bottom:6px;">🎯</div>
+          <div style="font-weight:700; font-size:13px; color:var(--accent3);">Hyperspherical Obj.</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">超球面聚类目标<br>vMF 分布驱动</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-box" style="background:rgba(244,63,94,0.08); border-color:rgba(244,63,94,0.4);">
+          <div style="font-size:20px; margin-bottom:6px;">⚡</div>
+          <div style="font-weight:700; font-size:13px; color:var(--accent5);">Zero-Shot Inference</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">单次前向传播<br>+ K-Means 聚类</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:16px; flex:1;">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h4 style="margin-bottom:8px;">训练阶段（Pre-training）</h4>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.7;">
+            在合成属性图 $(A,X,y) \sim p(\mathcal{D})$ 上优化：
+          </div>
+          <div class="formula-box">
+            $\theta^* = \arg\min_\theta\; \mathbb{E}_{(A,X,y)\sim p(\mathcal{D})}\bigl[\mathcal{L}\bigl(y,\, f_\theta(A,X)\bigr)\bigr]$
+          </div>
+          <div style="font-size:13px; color:var(--text-muted);">
+            $y$ 是合成标签（仅训练时可见）。学习可复用的<strong style="color:var(--text);">表示几何</strong>，而非数据集特定解。
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:8px;">推理阶段（Zero-shot Inference）</h4>
+          <div class="formula-box">
+            $Z = \operatorname{SwiFRT}_{\theta^*}(X, A)$<br>
+            $z_i = Z_{i,:}/\|Z_{i,:}\|_2$<br>
+            → $k\text{-means}(Z)$
+          </div>
+          <div style="font-size:13px; color:var(--text-muted);">
+            所有参数冻结，<strong style="color:var(--text);">无需梯度更新、图特定训练或验证标签</strong>。
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card green">
+          <h4 style="color:var(--accent3); margin-bottom:8px;">与 PFN 的关系（理论依据）</h4>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.7;">
+            <strong style="color:var(--text);">Prior-data Fitted Networks</strong> 通过在先验分布采样的合成数据上学习，
+            摊还贝叶斯推断——无需测试时更新参数。
+          </div>
+          <div class="formula-box" style="font-size:13px;">
+            最小化 $\mathbb{E}[\mathcal{L}_\text{comp}]$ ≡ 最小化空上下文 vMF 混合 PFN 的<br>
+            Prior-Data Negative Log-Likelihood
+          </div>
+        </div>
+        <div class="card viz-card" style="border-color:rgba(245,158,11,0.3);">
+          <div class="viz-header">
+            <div>
+              <div class="graph-demo-title" style="color:var(--accent4); font-weight:600;">学习的目标：表示几何</div>
+              <div class="graph-demo-sub">同簇节点靠近同一原型 · 原型在超球面上均匀分布</div>
+            </div>
+          </div>
+          <div class="viz-stage" style="min-height:220px;">
+            <svg id="geometry-demo"></svg>
+          </div>
+          <div class="viz-footer">
+            <div class="viz-legend">
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#94a3b8;"></span>节点 $z_i$</span>
+              <span class="viz-legend-item"><span class="viz-swatch diamond" style="background:#1a2038;"></span>原型 $\hat{\mu}_k$</span>
+              <span class="viz-legend-item" style="opacity:0.75;">虚线 = 原型均匀分散</span>
+            </div>
+            <div>自动旋转 · 悬停查看簇</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 8 – OFAG: CAGM Prior
+     ============================================================ -->
+<div class="slide" data-section="ofag" data-title="OFAG: CAGM Prior">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(244,63,94,0.15); border-color:rgba(244,63,94,0.3); color:var(--accent5);">OFAG</span>
+    <h2>CAGM：合成属性图先验</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:16px;">
+    <div class="insight-box">
+      <strong>核心思想：</strong>One-for-all 的泛化能力完全依赖先验 $p(\mathcal{D})$ 的广度。
+      过于狭窄的先验会导致模型学习到在分布外图上失效的捷径。
+      CAGM 是一个<strong>潜变量生成模型</strong>，以簇成员关系作为节点属性和图结构的共同原因。
+    </div>
+
+    <div class="grid-2" style="gap:18px; flex:1;">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h4 style="margin-bottom:10px;">生成过程（Generative Structure）</h4>
+          <div class="timeline" style="font-size:13px;">
+            <div class="timeline-item">
+              <strong>采样规模</strong>：$N, F, K$ 从宽分布采样；<br>
+              簇比例 $\pi \sim \text{Dirichlet}(\eta \mathbf{1}_K)$（含严重不平衡情形）
+            </div>
+            <div class="timeline-item">
+              <strong>节点属性生成</strong>：<br>
+              $h_i^X \mid y_i=k \sim t_\nu(\mu_k, \Sigma_k)$（簇条件潜变量）<br>
+              → 随机变换 $T$ 解码为连续/类别/计数/词袋特征
+            </div>
+            <div class="timeline-item">
+              <strong>边生成</strong>：<br>
+              $A_{ij} \sim \text{Bernoulli}(\sigma(s_{ij}))$<br>
+              $s_{ij} = \rho + \alpha(\theta_i+\theta_j) + \lambda_B B_{y_i,y_j} + \lambda_H\kappa(h_i^A,h_j^A) + \lambda_X\text{sim}(x_i,x_j)$
+            </div>
+            <div class="timeline-item">
+              <strong>同配性控制</strong>：<br>
+              $h \sim \text{Uniform}(0.1, 0.9)$，平滑插值同配→异配图结构
+            </div>
+          </div>
+        </div>
+
+        <div class="card amber">
+          <h4 style="color:var(--accent4); margin-bottom:8px;">设计理念</h4>
+          <ul class="fancy" style="font-size:13px;">
+            <li>若只生成同配图 → 模型退化为特征平滑启发式</li>
+            <li>若属性总是可分 → 模型忽略拓扑信息</li>
+            <li><strong>独立随机化属性可分性、边-簇耦合、结构模式</strong>，<br>
+              迫使模型学习自适应策略，按可靠性加权属性与结构证据</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card green">
+          <h4 style="color:var(--accent3); margin-bottom:10px;">定理：合成→真实泛化保证</h4>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.7;">
+            <strong style="color:var(--text);">定理（Synthetic-to-Real Generalization）：</strong><br>
+            设 $p_\text{real}(\mathcal{G})$ 满足：<br>
+            (i) 条件特征分布 $p(X|y)$ 是连续分布的有限混合；<br>
+            (ii) 边分布 $p(A|y,X)$ 遵循配对概率模型。<br><br>
+            则存在图编码器 $\Phi$ 和 CAGM 先验 $p_\text{syn}$，使得
+            $\Phi_\# p_\text{syn}(\mathcal{G})$ 以任意小总变差距离逼近 $p_\text{real}(\mathcal{G})$。
+          </div>
+        </div>
+
+        <!-- CAGM visualization -->
+        <div class="card viz-card" style="border-color:rgba(244,63,94,0.3);">
+          <div class="viz-header">
+            <div>
+              <div class="graph-demo-title">CAGM 生成的图多样性示意</div>
+              <div class="graph-demo-sub">低/中：交错排列看连边；高同配性：同簇节点聚在一起</div>
+            </div>
+          </div>
+          <div class="viz-stage" style="min-height:268px;">
+            <svg id="cagm-demo"></svg>
+          </div>
+          <div class="viz-footer">
+            <div class="viz-legend">
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#6c8ef7;"></span>簇 A</span>
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#a78bfa;"></span>簇 B</span>
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#34d399;"></span>簇 C</span>
+              <span class="viz-legend-item" style="opacity:0.75;">彩色边 = 同簇 · 灰色边 = 跨簇 · 右下为按簇排序的 $A$</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 9 – OFAG: SwiFRT
+     ============================================================ -->
+<div class="slide" data-section="ofag" data-title="OFAG: SwiFRT">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(244,63,94,0.15); border-color:rgba(244,63,94,0.3); color:var(--accent5);">OFAG</span>
+    <h2>SwiFRT：维度无关图编码器</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:14px;">
+    <div class="insight-box">
+      <strong>核心问题：</strong>维度特定的特征变换 $XW$（$W \in \mathbb{R}^{F \times d}$）
+      绑定于固定特征维度 $F$，无法零样本迁移到不同图上。<br>
+      <strong>SwiFRT</strong> 把每个特征通道 $X_{:,f}$ 视为图上的<strong>标量信号</strong>，
+      编码其在图滤波器组下的<strong>结构响应</strong>，而非原始特征值。
+    </div>
+
+    <div class="grid-2" style="gap:16px; flex:1;">
+      <!-- Left: method description -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h4 style="margin-bottom:8px;">Step 1：滤波器响应轮廓</h4>
+          <div style="font-size:13px; color:var(--text-muted);">
+            设 $\hat{A} = \tilde{D}^{-1/2}(A+I)\tilde{D}^{-1/2}$ 为对称归一化邻接矩阵，
+            对节点 $i$ 和特征通道 $f$，收集各扩散阶次的信号值：
+          </div>
+          <div class="formula-box">
+            $r_{i,f} = \bigl[(\hat{A}^0 X)_{i,f},\; (\hat{A}^1 X)_{i,f},\; \ldots,\; (\hat{A}^L X)_{i,f}\bigr] \in \mathbb{R}^{L+1}$
+          </div>
+          <div style="font-size:12px; color:var(--text-muted);">
+            该轮廓刻画信号是否局部稳定、被邻居平滑、或跨多跳放大/衰减——
+            <strong style="color:var(--text);">独立于语义内容，跨图可迁移。</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-bottom:8px;">Step 2：Transformer 编码</h4>
+          <div style="font-size:13px; color:var(--text-muted);">将每阶次响应嵌入为 $d$ 维 token：</div>
+          <div class="formula-box" style="font-size:13px;">
+            $e_{i,f,\ell} = \phi_\text{val}(r_{i,f,\ell}) + p_\ell$<br>
+            $h_{i,f} = \text{Transformer}([c_\text{cls}, e_{i,f,0}, \ldots, e_{i,f,L}])_{[0]}$<br>
+            $Z_{i,f} = \phi_\text{out}(h_{i,f})$
+          </div>
+          <div style="font-size:12px; color:var(--text-muted);">
+            Transformer 仅在同一 $(i,f)$ 对的滤波器阶次 token 间做自注意力，
+            学习不同扩散阶次间的交互模式。
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-bottom:8px;">Step 3：节点嵌入</h4>
+          <div class="formula-box" style="font-size:14px;">
+            $z_i = Z_{i,:} / \|Z_{i,:}\|_2 \in S^{F-1}$
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: visualization + properties -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card viz-card" style="border-color:rgba(167,139,250,0.4);">
+          <div class="viz-header">
+            <div>
+              <div class="graph-demo-title">SwiFRT 信号响应示意</div>
+              <div class="graph-demo-sub">同一节点 $i$，三个特征通道 $f$ 的滤波器轮廓 $r_{i,f}\in\mathbb{R}^{L+1}$</div>
+            </div>
+          </div>
+          <div class="viz-stage" style="min-height:210px;">
+            <svg id="swifrt-demo"></svg>
+          </div>
+          <div class="viz-footer">
+            <div class="viz-legend">
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#6c8ef7;"></span>平滑扩散</span>
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#a78bfa;"></span>局部振荡</span>
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#34d399;"></span>跨跳放大</span>
+            </div>
+            <div>悬停对比单通道</div>
+          </div>
+        </div>
+
+        <div class="card green">
+          <h4 style="color:var(--accent3); margin-bottom:8px;">命题：维度无关性 & 特征置换等变性</h4>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.65;">
+            设 $\sigma$ 为特征索引的任意置换，$X_\sigma$ 为对应置换后的特征矩阵。SwiFRT 满足：<br><br>
+            <strong style="color:var(--text);">(i) 维度无关</strong>：可训练参数数量与输入特征维度 $F$ 无关；<br>
+            <strong style="color:var(--text);">(ii) 置换等变</strong>：$\operatorname{SwiFRT}(X_\sigma, A) = \operatorname{SwiFRT}(X, A)_\sigma$
+          </div>
+        </div>
+
+        <div class="card amber">
+          <h4 style="color:var(--accent4); margin-bottom:8px;">为什么结构响应具有可迁移性？</h4>
+          <ul class="fancy" style="font-size:13px;">
+            <li>均匀平滑扩散的信号 ≠ 局部振荡的信号——无关语义内容</li>
+            <li>同一响应模式在不同图（甚至不同域）中具有相似的聚类意义</li>
+            <li>通道独立处理 → 任意 $F$ 均可共享同一组参数</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 10 – OFAG: Hyperspherical Objective
+     ============================================================ -->
+<div class="slide" data-section="ofag" data-title="OFAG: Objective">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(244,63,94,0.15); border-color:rgba(244,63,94,0.3); color:var(--accent5);">OFAG</span>
+    <h2>超球面聚类目标函数</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:14px;">
+    <div class="grid-2" style="gap:18px; flex:1;">
+      <!-- Left -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h4 style="margin-bottom:10px;">原型计算（Episode-specific Prototypes）</h4>
+          <div style="font-size:13px; color:var(--text-muted);">
+            对每个合成图，用当前嵌入动态计算簇原型，支持可变 $K$：
+          </div>
+          <div class="formula-box">
+            $\hat{\mu}_k = \dfrac{\sum_{i:\,y_i=k} z_i}{\bigl\|\sum_{i:\,y_i=k} z_i\bigr\|_2 + \varepsilon} \in S^{F-1}$
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+            按轮次动态计算，无全局原型参数，无固定簇身份结构。
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-bottom:8px;">紧凑性损失 $\mathcal{L}_\text{comp}$（vMF MLE）</h4>
+          <div class="formula-box">
+            $q_\theta(y_i{=}k \mid z_i) = \dfrac{\exp(\hat{\mu}_k^\top z_i/\tau)}{\sum_{k'} \exp(\hat{\mu}_{k'}^\top z_i/\tau)}$<br><br>
+            $\mathcal{L}_\text{comp} = -\dfrac{1}{N}\sum_{i=1}^N \log\dfrac{\exp(\hat{\mu}_{y_i}^\top z_i/\tau)}{\sum_{k=1}^K \exp(\hat{\mu}_k^\top z_i/\tau)}$
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+            拉近节点表示与其簇原型，推远与其他原型的距离。
+            等价于以 $\kappa=1/\tau$ 为集中度的 $K$ 分量 vMF 混合模型的 MLE。
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-bottom:8px;">分散性损失 $\mathcal{L}_\text{disp}$</h4>
+          <div class="formula-box">
+            $\mathcal{L}_\text{disp} = \dfrac{1}{K}\sum_{k=1}^K \log\dfrac{1}{K-1}\sum_{j\neq k} \exp\!\bigl(\hat{\mu}_k^\top\hat{\mu}_j/\tau\bigr)$
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+            最小化不同原型间的余弦相似度，使原型均匀分布在超球面上。
+            最优解趋向<strong style="color:var(--text);">等角紧框架（ETF）</strong>——最大化簇间角度分离。
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <!-- Sphere visualization -->
+        <div class="card viz-card" style="border-color:rgba(167,139,250,0.4);">
+          <div class="viz-header">
+            <div>
+              <div class="graph-demo-title">超球面上的聚类几何</div>
+              <div class="graph-demo-sub">节点聚集于原型 $\mathcal{L}_\text{comp}$ · 原型均匀分散 $\mathcal{L}_\text{disp}$</div>
+            </div>
+          </div>
+          <div class="viz-stage" style="min-height:250px;">
+            <svg id="sphere-demo"></svg>
+          </div>
+          <div class="viz-footer">
+            <div class="viz-legend">
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#94a3b8;"></span>节点 $z_i$</span>
+              <span class="viz-legend-item"><span class="viz-swatch diamond" style="background:#1a2038;"></span>原型 $\hat{\mu}_k$</span>
+              <span class="viz-legend-item" style="opacity:0.75;">虚线 = 原型间角度分离</span>
+            </div>
+            <div>自动旋转 · 悬停查看簇</div>
+          </div>
+        </div>
+
+        <div class="card green">
+          <h4 style="color:var(--accent3); margin-bottom:8px;">总体训练目标</h4>
+          <div class="formula-box" style="font-size:14px;">
+            $\mathcal{L}(\theta) = \mathbb{E}_{(A,X,y)\sim p(\mathcal{D})}\bigl[\mathcal{L}_\text{comp} + \lambda\,\mathcal{L}_\text{disp}\bigr]$
+          </div>
+          <div style="font-size:13px; color:var(--text-muted); margin-top:8px;">
+            Monte Carlo 近似：每步采样一批合成图 → 编码 → 计算即时原型 → 反传
+          </div>
+        </div>
+
+        <div class="card amber">
+          <h4 style="color:var(--accent4); margin-bottom:8px;">互补性分析</h4>
+          <div class="grid-2" style="gap:8px; font-size:13px;">
+            <div class="card-sm" style="border-color:rgba(108,142,247,0.4);">
+              <strong style="color:var(--accent);">$\mathcal{L}_\text{comp}$</strong><br>
+              <span style="font-size:12px; color:var(--text-muted);">节点聚集于其簇原型，远离其他簇原型（簇内紧凑）</span>
+            </div>
+            <div class="card-sm" style="border-color:rgba(167,139,250,0.4);">
+              <strong style="color:var(--accent2);">$\mathcal{L}_\text{disp}$</strong><br>
+              <span style="font-size:12px; color:var(--text-muted);">原型均匀铺展于超球面（簇间分离）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 11 – OFAG: Experimental Results
+     ============================================================ -->
+<div class="slide" data-section="results" data-title="OFAG: Results">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(52,211,153,0.15); border-color:rgba(52,211,153,0.3); color:var(--accent3);">实验结果</span>
+    <h2>OFAG 性能：质量 & 效率双领先</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:16px;">
+
+    <!-- Headline metrics -->
+    <div class="grid-4" style="gap:14px;">
+      <div class="card green metric">
+        <div class="value grad-text">1st</div>
+        <div class="label">平均排名 (Avg. Rank)<br>NMI/ACC/ARI/F1</div>
+      </div>
+      <div class="card green metric">
+        <div class="value" style="color:var(--accent3);">39.49</div>
+        <div class="label">平均 NMI（10数据集）<br>最高均值</div>
+      </div>
+      <div class="card green metric">
+        <div class="value" style="color:var(--accent4);">12.43<span style="font-size:20px;">min</span></div>
+        <div class="label">10 个数据集总运行时间<br>最快方法</div>
+      </div>
+      <div class="card green metric">
+        <div class="value" style="color:var(--accent5);">28×</div>
+        <div class="label">比聚类质量第二快的方法<br>时间加速比</div>
+      </div>
+    </div>
+
+    <!-- Results table (simplified) -->
+    <div class="card" style="overflow-x:auto;">
+      <div style="font-size:13px; font-weight:700; color:var(--text-muted); margin-bottom:10px;">
+        表：NMI (↑) 对比，数据集涵盖同配图与异配图（节选代表性方法）
+      </div>
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th>方法</th>
+            <th>Cora</th>
+            <th>Photo</th>
+            <th>ArXiv</th>
+            <th>Reddit</th>
+            <th>Products</th>
+            <th>HM (异配)</th>
+            <th>Flickr (异配)</th>
+            <th>MAG</th>
+            <th>Mean</th>
+            <th>Avg.Rank</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>KMeans</td><td>13.89</td><td>31.70</td><td>22.59</td><td>11.08</td><td>29.24</td><td>10.17</td><td>1.21</td><td>28.32</td><td>15.21</td><td>16.30</td></tr>
+          <tr><td>S3GC</td><td>55.45</td><td>68.27</td><td class="cmp-rank">47.11</td><td class="cmp-rank">83.45</td><td class="cmp-rank">53.43</td><td>11.57</td><td>7.84</td><td>39.80</td><td>38.08</td><td>5.10</td></tr>
+          <tr><td>MAGI</td><td class="cmp-rank">58.94</td><td>68.65</td><td>46.53</td><td>72.53</td><td>44.58</td><td>11.24</td><td>6.31</td><td>41.34</td><td>36.82</td><td>5.75</td></tr>
+          <tr><td>NS4GC</td><td class="cmp-best">59.40</td><td class="cmp-best">72.62</td><td class="cmp-best">48.39</td><td>56.71</td><td class="cmp-best">54.63</td><td class="cmp-best">15.28</td><td>6.19</td><td class="cmp-rank">41.64</td><td>37.21</td><td class="cmp-rank">3.40</td></tr>
+          <tr style="background:rgba(108,142,247,0.1);">
+            <td style="font-weight:700; color:var(--accent);">OFAG ⭐</td>
+            <td>57.06</td>
+            <td class="cmp-rank">71.45</td>
+            <td>45.08</td>
+            <td class="cmp-best">85.94</td>
+            <td>52.77</td>
+            <td>11.61</td>
+            <td class="cmp-best">9.27</td>
+            <td class="cmp-best">41.78</td>
+            <td class="cmp-best">39.49</td>
+            <td class="cmp-best">3.05</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Efficiency -->
+    <div class="grid-2" style="gap:14px;">
+      <div class="card" style="border-color:rgba(52,211,153,0.3);">
+        <h4 style="color:var(--accent3); margin-bottom:8px;">⚡ 效率对比（总运行时间）</h4>
+        <div id="efficiency-chart" style="height:120px; width:100%;"></div>
+      </div>
+      <div class="card amber">
+        <h4 style="color:var(--accent4); margin-bottom:8px;">💡 关键发现</h4>
+        <ul class="fancy" style="font-size:13px;">
+          <li><strong>单个冻结模型</strong>在所有 10 个数据集上达到最佳均值性能和平均排名</li>
+          <li>OFAG 完成全部 10 个数据集仅 12.43 分钟，<strong>第二快方法需 76 分钟+</strong></li>
+          <li>考虑到现有方法在每张新图上还需盲目调参，<strong>实际时间节省达数量级</strong></li>
+          <li>预训练一次，永久冻结，<strong>对任何新图均可直接应用</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 12 – OFAG: Pretraining Ablations & Dynamics
+     ============================================================ -->
+<div class="slide" data-section="results" data-title="OFAG: Pretraining">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(52,211,153,0.15); border-color:rgba(52,211,153,0.3); color:var(--accent3);">实验结果</span>
+    <h2>预训练为何重要：先验广度 + 训练动态</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
+    <div class="insight-box" style="padding:12px 18px; font-size:13.5px;">
+      <strong>核心主张：</strong>One-for-all 的上限由先验 $p(\mathcal{D})$ 的覆盖决定；可迁移的聚类策略则在预训练中被迅速习得。
+      一次预训练覆盖 <strong>80,000</strong> 张合成图（10,000 steps，约 1.5 h / A800），随后<strong>永久冻结</strong>，以最低验证损失 checkpoint 做零样本推理。
+    </div>
+
+    <div class="grid-2" style="gap:14px; flex:1; min-height:0;">
+      <!-- Left: prior ablation -->
+      <div style="display:flex; flex-direction:column; gap:12px; min-height:0;">
+        <div class="card viz-card" style="flex:1; border-color:rgba(225,29,72,0.28);">
+          <div class="viz-header">
+            <div>
+              <div class="graph-demo-title" style="font-weight:700; color:var(--text);">先验消融：同配性覆盖 $h$</div>
+              <div class="graph-demo-sub">预训练时限制 $h$ 的采样区间 → 零样本 All NMI（10 图均值）</div>
+            </div>
+          </div>
+          <div class="viz-stage" style="min-height:168px; background:#f7f8fd;">
+            <div id="prior-ablation-chart" class="pt-chart"></div>
+          </div>
+          <div class="viz-footer">
+            <div class="viz-legend">
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#34d399;"></span>全覆盖（默认）</span>
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#94a3b8;"></span>受限先验</span>
+            </div>
+            <div>仅异配预训练最伤：All NMI −7.12</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:12px 16px;">
+          <h4 style="margin-bottom:8px; font-size:14px;">组件消融（All NMI / ACC）</h4>
+          <table class="cmp-table plain" style="font-size:12px;">
+            <thead>
+              <tr>
+                <th style="text-align:left;">变体</th>
+                <th>Homo</th>
+                <th>Hetero</th>
+                <th>All NMI</th>
+                <th>Δ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:rgba(108,142,247,0.1);">
+                <td style="text-align:left; font-weight:700; color:var(--accent);">OFAG（完整）</td>
+                <td>62.46</td><td>16.51</td>
+                <td class="cmp-best">39.49</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td style="text-align:left;">仅连续特征</td>
+                <td>62.02</td><td>16.12</td><td>39.07</td>
+                <td><span class="delta-pill">−0.42</span></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;">仅同配图 $h\in[0.7,0.9]$</td>
+                <td>61.46</td><td>15.65</td><td>38.56</td>
+                <td><span class="delta-pill">−0.93</span></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;">$g_\theta$: Transformer → MLP</td>
+                <td>60.24</td><td>13.80</td><td>37.02</td>
+                <td><span class="delta-pill">−2.47</span></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;">去掉 $\mathcal{L}_\text{disp}$</td>
+                <td>61.40</td><td>14.50</td><td>37.95</td>
+                <td><span class="delta-pill">−1.54</span></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;">去掉 $\ell_2$ 归一化</td>
+                <td>54.72</td><td>14.10</td><td>34.41</td>
+                <td><span class="delta-pill">−5.08</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: dynamics + sensitivity -->
+      <div style="display:flex; flex-direction:column; gap:12px; min-height:0;">
+        <div class="card viz-card" style="flex:1; border-color:rgba(59,94,245,0.28);">
+          <div class="viz-header">
+            <div>
+              <div class="graph-demo-title" style="font-weight:700; color:var(--text);">预训练动态：真实图上的 checkpoint NMI</div>
+              <div class="graph-demo-sub">实测 checkpoint：init → step 50 → 每 500 steps；前 ~1,000 steps 陡升后进入平台期</div>
+            </div>
+          </div>
+          <div class="viz-stage" style="min-height:248px; background:#f7f8fd;">
+            <div id="pretrain-dynamics-chart" class="pt-chart"></div>
+          </div>
+          <div class="viz-footer">
+            <div class="viz-legend">
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#3b5ef5;"></span>同配图</span>
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#e11d48;"></span>异配图</span>
+              <span class="viz-legend-item"><span class="viz-swatch" style="background:#059669;"></span>全部 10 图</span>
+            </div>
+            <div>实测 checkpoint NMI（init / step 50 / 每 500 steps）</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:12px;">
+          <div class="card" style="padding:12px 14px;">
+            <h4 style="margin-bottom:6px; font-size:13px;">滤波器阶数 $L$</h4>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">SwiFRT 多尺度上下文；$L{=}2$ 明显不足</div>
+            <table class="cmp-table plain" style="font-size:11px;">
+              <thead><tr><th>$L$</th><th>2</th><th>3</th><th>5</th><th>8</th><th>10</th><th>12</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>All NMI</td>
+                  <td>37.22</td><td>38.75</td><td>39.06</td><td>38.91</td>
+                  <td class="cmp-best">39.49</td>
+                  <td>39.16</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card" style="padding:12px 14px;">
+            <h4 style="margin-bottom:6px; font-size:13px;">分散权重 $\lambda$</h4>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">$\lambda{=}0$ 最差；只要 $\lambda{>}0$ 即稳定</div>
+            <table class="cmp-table plain" style="font-size:11px;">
+              <thead><tr><th>$\lambda$</th><th>0</th><th>0.1</th><th>0.3</th><th>0.5</th><th>1.0</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>All NMI</td>
+                  <td>37.95</td>
+                  <td class="cmp-best">39.49</td>
+                  <td>38.81</td><td>39.38</td><td>39.28</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="gap:12px;">
+      <div class="card amber" style="padding:12px 16px;">
+        <h4 style="color:var(--accent4); margin-bottom:4px; font-size:13px;">先验必须够广</h4>
+        <div style="font-size:12.5px; color:var(--text-muted); line-height:1.55;">
+          全谱 $h\in[0.1,0.9]$ 全面最优。只训同配会过平滑；只训异配会把信息赶到簇间，同配 NMI 掉 <strong style="color:var(--text);">−10.84</strong>。
+        </div>
+      </div>
+      <div class="card green" style="padding:12px 16px;">
+        <h4 style="color:var(--accent3); margin-bottom:4px; font-size:13px;">策略学得很快</h4>
+        <div style="font-size:12.5px; color:var(--text-muted); line-height:1.55;">
+          同配 51.0→62.7、异配 12.0→16.5、全部 31.5→39.6：前 50 steps 已大幅跃升，随后平台期低幅波动。
+        </div>
+      </div>
+      <div class="card" style="padding:12px 16px; border-color:rgba(124,58,237,0.35);">
+        <h4 style="color:var(--accent2); margin-bottom:4px; font-size:13px;">几何与目标同样关键</h4>
+        <div style="font-size:12.5px; color:var(--text-muted); line-height:1.55;">
+          $\ell_2$ 归一化去掉后跌幅最大（All NMI <strong style="color:var(--text);">−5.08</strong>）；$\mathcal{L}_\text{disp}$ 对异配图尤其重要（Hetero NMI $+2.01$）。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SLIDE 13 – SUMMARY & FUTURE WORK
+     ============================================================ -->
+<div class="slide" data-section="results" data-title="Summary">
+  <div class="slide-header">
+    <span class="section-badge" style="background:rgba(52,211,153,0.15); border-color:rgba(52,211,153,0.3); color:var(--accent3);">总结</span>
+    <h2>总结与未来展望</h2>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:18px;">
+    <div class="grid-2" style="gap:18px;">
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="card highlight" style="border-color:rgba(108,142,247,0.5);">
+          <h4 style="margin-bottom:10px;">📌 研究贡献总结</h4>
+          <ul class="fancy">
+            <li><strong>NS4GC（TKDE 2024）：</strong>节点相似度矩阵视角的对比图聚类，SOTA</li>
+            <li><strong>SASE（CIKM 2024）：</strong>线性复杂度无参数谱嵌入图聚类</li>
+            <li><strong>SHiFT（arXiv 2026）：</strong>LLM+GNN 协同层次聚类，EM 范式</li>
+            <li><strong>PyAGC（arXiv 2026）：</strong>工业级属性图聚类基准与统一框架</li>
+            <li><strong>OFAG（KDD 2027）：</strong>首个属性图聚类基础模型，零样本迁移</li>
+            <li><strong>Survey（arXiv 2026）：</strong>系统综述，Encode-Cluster-Optimize 分类框架</li>
+          </ul>
+        </div>
+
+        <div class="card green">
+          <h4 style="color:var(--accent3); margin-bottom:10px;">🔬 OFAG 的核心创新</h4>
+          <ul class="fancy" style="font-size:13px;">
+            <li><strong>CAGM 先验：</strong>耦合属性图生成，覆盖多样图结构</li>
+            <li><strong>SwiFRT 编码器：</strong>信号响应空间，维度无关零样本迁移</li>
+            <li><strong>超球面目标：</strong>vMF 混合 MLE，ETF 最优原型几何</li>
+            <li><strong>理论保证：</strong>PFN 框架、合成→真实泛化定理</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="card" style="border-color:rgba(167,139,250,0.4);">
+          <h4 style="color:var(--accent2); margin-bottom:10px;">🚀 未来研究方向</h4>
+          <ul class="fancy" style="font-size:13px;">
+            <li><strong>自动 $K$ 选择：</strong>无需先验知识的簇数量估计</li>
+            <li><strong>更大规模训练：</strong>十亿节点级合成图预训练</li>
+            <li><strong>层次聚类：</strong>结合 Taxonomy 的分层语义</li>
+            <li><strong>异常感知聚类：</strong>整合异常检测（APF, TFM4GAD）</li>
+            <li><strong>大语言模型增强：</strong>文本属性图的语义先验注入</li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <h4 style="color:var(--accent4); margin-bottom:10px;">💼 工业应用潜力</h4>
+          <ul class="fancy" style="font-size:13px;">
+            <li><strong>零样本用户分群：</strong>无需每次重新训练</li>
+            <li><strong>欺诈团伙发现：</strong>异配图聚类（异配性鲁棒）</li>
+            <li><strong>GraphRAG：</strong>图结构社区挖掘辅助 RAG</li>
+            <li>已在蚂蚁集团先享后付风控场景实践验证</li>
+          </ul>
+        </div>
+
+        <div class="insight-box">
+          <strong>核心主张：</strong>图聚类的"预训练一次，随处应用"范式
+          不仅在概念上令人信服，而且在实践中<strong>同时实现了最高精度和最快速度</strong>。
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:14px 24px;">
+      <div>
+        <div style="font-size:16px; font-weight:700; color:var(--text);">刘云辉 · Yunhui Liu</div>
+        <div style="font-size:13px; color:var(--text-muted);">Ph.D. Student · Nanjing University</div>
+      </div>
+      <div style="display:flex; gap:24px; flex-wrap:wrap; font-size:13px; color:var(--text-muted);">
+        <span>📧 <a class="plink" href="mailto:lyhcloudy1225@gmail.com">lyhcloudy1225@gmail.com</a></span>
+        <span>🌐 <a class="plink" href="https://cloudy1225.github.io" target="_blank">cloudy1225.github.io</a></span>
+        <span>🐙 <a class="plink" href="https://github.com/Cloudy1225" target="_blank">github.com/Cloudy1225</a></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #presentation -->
+
+<!-- Navigation -->
+<div id="nav">
+  <button id="btn-prev">◀</button>
+  <span id="slide-counter">1 / 14</span>
+  <button id="btn-next">▶</button>
+</div>
+
+<div id="keyboard-hint">← → 方向键 / 点击导航</div>
+
+<script>
+// =====================================================================
+// SLIDESHOW ENGINE
+// =====================================================================
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total = slides.length;
+let current = 0;
+let graphDemoSim = null;
+let sphereSpinId = null;
+const sphereRenders = {};
+
+const progressBar = document.getElementById('progress-bar');
+const counter = document.getElementById('slide-counter');
+const btnPrev = document.getElementById('btn-prev');
+const btnNext = document.getElementById('btn-next');
+const toc = document.getElementById('toc');
+
+// Build TOC dots
+slides.forEach((s, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'toc-dot' + (i === 0 ? ' active' : '');
+  dot.title = s.dataset.title || ('Slide ' + (i+1));
+  dot.addEventListener('click', () => goTo(i));
+  toc.appendChild(dot);
+});
+
+function goTo(n) {
+  if (n < 0 || n >= total) return;
+  if (current === 2 && n !== 2) graphDemoSim?.stop();
+  stopSphereSpin();
+  slides[current].classList.remove('active');
+  slides[current].classList.add('exit');
+  setTimeout(() => slides[current].classList.remove('exit'), 500);
+
+  current = n;
+  slides[current].classList.add('active');
+
+  progressBar.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent = (current + 1) + ' / ' + total;
+  btnPrev.disabled = current === 0;
+  btnNext.disabled = current === total - 1;
+
+  document.querySelectorAll('.toc-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+
+  // Trigger slide-specific animations after layout settles
+  requestAnimationFrame(() => {
+    setTimeout(() => slideAnimations[current]?.(), 60);
+  });
+}
+
+btnNext.addEventListener('click', () => goTo(current + 1));
+btnPrev.addEventListener('click', () => goTo(current - 1));
+document.addEventListener('keydown', e => {
+  if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(current - 1);
+});
+
+goTo(0);
+
+// =====================================================================
+// D3 VISUALIZATIONS
+// =====================================================================
+
+// Color palette
+const COLORS = ['#6c8ef7','#a78bfa','#34d399','#f59e0b','#f43f5e','#06b6d4','#fb923c','#84cc16'];
+const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+function mulberry32(seed) {
+  let a = seed | 0;
+  return () => {
+    a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function paddedHull(pts, pad) {
+  const hull = d3.polygonHull(pts);
+  if (!hull || hull.length < 3) return null;
+  const cx = d3.mean(hull, p => p[0]);
+  const cy = d3.mean(hull, p => p[1]);
+  return hull.map(([x, y]) => {
+    const dx = x - cx, dy = y - cy;
+    const len = Math.hypot(dx, dy) || 1;
+    return [x + pad * dx / len, y + pad * dy / len];
+  });
+}
+const hullCurve = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveCatmullRomClosed.alpha(0.7));
+
+function stopSphereSpin() {
+  if (sphereSpinId != null) {
+    cancelAnimationFrame(sphereSpinId);
+    sphereSpinId = null;
+  }
+}
+function startSphereSpin(key) {
+  stopSphereSpin();
+  const render = sphereRenders[key];
+  if (!render) return;
+  if (reduceMotion) { render(); return; }
+  const loop = () => {
+    sphereSpinId = requestAnimationFrame(loop);
+    render();
+  };
+  sphereSpinId = requestAnimationFrame(loop);
+}
+
+function nrm3(v) {
+  const l = Math.hypot(v[0], v[1], v[2]) || 1;
+  return [v[0] / l, v[1] / l, v[2] / l];
+}
+
+function mountRotatingSphere(el, {
+  key, W, H, protoVecs, seed = 7, nPer = 8, spread = 0.42, rays = false
+}) {
+  if (!el) return;
+  if (el.childElementCount > 0) { startSphereSpin(key); return; }
+
+  const svg = d3.select(el)
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+  const cx = W / 2, cy = H / 2 + 4, R = Math.min(W, H) * 0.38;
+
+  function rotY(v, a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c];
+  }
+  function tilt(v) {
+    const a = 0.55, c = Math.cos(a), s = Math.sin(a);
+    return [v[0], v[1] * c - v[2] * s, v[1] * s + v[2] * c];
+  }
+  function project(v) {
+    const t = tilt(v);
+    return {x: cx + R * t[0], y: cy - R * t[2], depth: t[1]};
+  }
+
+  const protos = protoVecs.map(nrm3);
+  const K = protos.length;
+  const rand = mulberry32(seed);
+  const nodes = [];
+  protos.forEach((mu, k) => {
+    for (let i = 0; i < nPer; i++) {
+      nodes.push({
+        k,
+        v: nrm3([
+          mu[0] + (rand() - 0.5) * spread,
+          mu[1] + (rand() - 0.5) * spread,
+          mu[2] + (rand() - 0.5) * spread
+        ])
+      });
+    }
+  });
+
+  const pairs = [];
+  for (let i = 0; i < K; i++) for (let j = i + 1; j < K; j++) pairs.push([i, j]);
+
+  svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', R)
+    .attr('fill', 'rgba(59,94,245,0.04)')
+    .attr('stroke', 'rgba(26,32,56,0.16)').attr('stroke-width', 1.2);
+  svg.append('text').text('S^(d−1)')
+    .attr('x', cx + R * 0.62).attr('y', 20)
+    .attr('font-size', '11px').style('fill', 'rgba(26,32,56,0.38)');
+
+  const backWire = svg.append('g').style('pointer-events', 'none');
+  const rayG = svg.append('g').style('pointer-events', 'none');
+  const chordG = svg.append('g').style('pointer-events', 'none');
+  const nodeLayer = svg.append('g');
+  const protoLayer = svg.append('g');
+  const labelLayer = svg.append('g').style('pointer-events', 'none');
+
+  const raySel = rays
+    ? rayG.selectAll('line').data(d3.range(K)).enter().append('line').attr('stroke-width', 1.15)
+    : null;
+
+  const nodeSel = nodeLayer.selectAll('circle').data(nodes).enter().append('circle')
+    .attr('r', 3.4).attr('stroke', '#fff').attr('stroke-width', 0.8)
+    .style('cursor', 'pointer');
+  const protoSel = protoLayer.selectAll('g').data(protos.map((v, k) => ({v, k}))).enter().append('g')
+    .style('cursor', 'pointer');
+  protoSel.append('circle').attr('r', 9).attr('fill', d => COLORS[d.k]).attr('opacity', 0.18);
+  protoSel.append('polygon').attr('points', '0,-6 6,0 0,6 -6,0')
+    .attr('fill', d => COLORS[d.k]).attr('stroke', '#fff').attr('stroke-width', 1.4);
+  const labelSel = labelLayer.selectAll('text').data(d3.range(K)).enter().append('text')
+    .text(k => 'μ̂' + (k + 1))
+    .attr('text-anchor', 'middle').attr('font-size', '10px').attr('font-weight', '700');
+  const chordSel = chordG.selectAll('line').data(pairs).enter().append('line')
+    .attr('stroke-dasharray', '4 3').attr('stroke-width', 1);
+
+  function wirePath(pts) {
+    return pts.map((p, i) => (i ? 'L' : 'M') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join('');
+  }
+  function greatCircle(nSamples, gen) {
+    return d3.range(nSamples).map(i => gen(i / nSamples * Math.PI * 2));
+  }
+
+  let angle = 0.4;
+  let paused = false;
+  let focusK = null;
+
+  const render = () => {
+    if (!paused && !reduceMotion) angle += 0.006;
+    const tf = v => rotY(v, angle);
+
+    const equator = greatCircle(64, t => tf([Math.cos(t), 0, Math.sin(t)])).map(project);
+    const meridian = greatCircle(64, t => tf([0, Math.cos(t), Math.sin(t)])).map(project);
+    backWire.selectAll('path').data([equator, meridian]).join('path')
+      .attr('d', d => wirePath(d) + 'Z')
+      .attr('fill', 'none')
+      .attr('stroke', 'rgba(26,32,56,0.16)')
+      .attr('stroke-width', 1);
+
+    const pP = protos.map(v => project(tf(v)));
+    if (raySel) {
+      raySel.each(function(k) {
+        const p = pP[k];
+        const on = focusK == null || focusK === k;
+        d3.select(this)
+          .attr('x1', cx).attr('y1', cy).attr('x2', p.x).attr('y2', p.y)
+          .attr('stroke', COLORS[k])
+          .attr('stroke-opacity', on ? (0.2 + 0.25 * (p.depth + 1) / 2) : 0.05);
+      });
+    }
+    chordSel.each(function(pair) {
+      const a = pP[pair[0]], b = pP[pair[1]];
+      const dim = focusK != null && pair[0] !== focusK && pair[1] !== focusK;
+      d3.select(this)
+        .attr('x1', a.x).attr('y1', a.y).attr('x2', b.x).attr('y2', b.y)
+        .attr('stroke', 'rgba(26,32,56,0.22)')
+        .attr('opacity', dim ? 0.08 : 0.7);
+    });
+
+    nodeSel.each(function(d) {
+      const p = project(tf(d.v));
+      d._depth = p.depth;
+      const s = 0.62 + 0.38 * (p.depth + 1) / 2;
+      const on = focusK == null || d.k === focusK;
+      d3.select(this)
+        .attr('cx', p.x).attr('cy', p.y).attr('r', 3.2 * s)
+        .attr('fill', COLORS[d.k])
+        .attr('opacity', on ? (0.35 + 0.6 * (p.depth + 1) / 2) : 0.08);
+    });
+    nodeSel.sort((a, b) => a._depth - b._depth);
+    protoSel.each(function(d) {
+      const p = project(tf(d.v));
+      const on = focusK == null || d.k === focusK;
+      d3.select(this)
+        .attr('transform', `translate(${p.x},${p.y})`)
+        .attr('opacity', on ? (0.45 + 0.55 * (p.depth + 1) / 2) : 0.1);
+    });
+    labelSel.each(function(k) {
+      const p = pP[k];
+      d3.select(this)
+        .attr('x', p.x).attr('y', p.y - 14)
+        .style('fill', COLORS[k])
+        .attr('opacity', focusK == null || focusK === k ? 0.9 : 0.15);
+    });
+  };
+
+  function setFocus(k) {
+    focusK = k;
+    paused = k != null;
+    render();
+  }
+  nodeSel.on('mouseenter', (_, d) => setFocus(d.k)).on('mouseleave', () => setFocus(null));
+  protoSel.on('mouseenter', (_, d) => setFocus(d.k)).on('mouseleave', () => setFocus(null));
+
+  sphereRenders[key] = render;
+  render();
+  if (!reduceMotion) startSphereSpin(key);
+}
+
+// ---- SLIDE 0: Animated title graph ----
+function drawTitleGraph() {
+  const el = document.getElementById('title-graph');
+  if (!el || el.querySelector('svg')) return;
+  const W = 420, H = 400;
+  const pad = 22;
+  const K = 3, nPer = 8;
+  const rng = mulberry32(2026);
+  const labels = ['NS4GC', 'PyAGC', 'OFAG'];
+  const centers = [
+    {x: W * 0.30, y: H * 0.30},
+    {x: W * 0.72, y: H * 0.32},
+    {x: W * 0.50, y: H * 0.72}
+  ];
+
+  const svg = d3.select(el).append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet')
+    .style('overflow', 'hidden');
+
+  const defs = svg.append('defs');
+  const glow = defs.append('filter').attr('id', 'title-glow')
+    .attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%');
+  glow.append('feGaussianBlur').attr('stdDeviation', 2.4).attr('result', 'b');
+  glow.append('feMerge').selectAll('feMergeNode').data(['b', 'SourceGraphic'])
+    .enter().append('feMergeNode').attr('in', d => d);
+
+  const nodes = [];
+  d3.range(K).forEach(k => {
+    const c = centers[k];
+    for (let i = 0; i < nPer; i++) {
+      const a = -Math.PI / 2 + (i / nPer) * Math.PI * 2 + rng() * 0.18;
+      const rad = 28 + rng() * 22;
+      nodes.push({
+        id: k * nPer + i,
+        k,
+        hub: i === 0,
+        x: c.x + rad * Math.cos(a),
+        y: c.y + rad * Math.sin(a)
+      });
+    }
+  });
+  const links = [];
+  nodes.forEach((n, i) => {
+    nodes.forEach((m, j) => {
+      if (j <= i) return;
+      const intra = n.k === m.k;
+      const u = rng();
+      if (intra && (n.hub || m.hub || u < 0.42)) links.push({source: n.id, target: m.id, intra: true, k: n.k});
+      else if (!intra && u < 0.055) links.push({source: n.id, target: m.id, intra: false, k: -1});
+    });
+  });
+
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id)
+      .distance(d => d.intra ? 36 : 118).strength(d => d.intra ? 0.55 : 0.04))
+    .force('charge', d3.forceManyBody().strength(-42))
+    .force('collide', d3.forceCollide(d => d.hub ? 16 : 13))
+    .force('x', d3.forceX(d => centers[d.k].x).strength(0.16))
+    .force('y', d3.forceY(d => centers[d.k].y).strength(0.16))
+    .alphaDecay(0.04)
+    .stop();
+  sim.tick(80);
+
+  const hulls = svg.append('g').selectAll('path').data(d3.range(K)).enter().append('path')
+    .attr('fill', k => COLORS[k])
+    .attr('fill-opacity', 0.10)
+    .attr('stroke', k => COLORS[k])
+    .attr('stroke-opacity', 0.38)
+    .attr('stroke-width', 1.3)
+    .attr('stroke-dasharray', '6 5');
+
+  const link = svg.append('g').selectAll('line').data(links).enter().append('line')
+    .attr('class', d => d.intra ? null : 'inter-edge')
+    .attr('stroke', d => d.intra ? COLORS[d.k] : 'rgba(26,32,56,0.28)')
+    .attr('stroke-opacity', d => d.intra ? 0.45 : 0.55)
+    .attr('stroke-width', d => d.intra ? 1.45 : 1.05)
+    .style('pointer-events', 'none');
+
+  const nodeG = svg.append('g').selectAll('g').data(nodes).enter().append('g')
+    .style('cursor', 'default');
+
+  nodeG.append('circle')
+    .attr('class', d => d.hub ? 'hub-aura' : null)
+    .attr('r', d => d.hub ? 16 : 11)
+    .attr('fill', d => COLORS[d.k])
+    .attr('opacity', 0.16)
+    .style('pointer-events', 'none');
+
+  nodeG.append('circle')
+    .attr('r', d => d.hub ? 8.5 : 6.2)
+    .attr('fill', d => COLORS[d.k])
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 1.6)
+    .attr('filter', d => d.hub ? 'url(#title-glow)' : null)
+    .style('pointer-events', 'none');
+
+  const hit = nodeG.append('circle')
+    .attr('r', 12)
+    .attr('fill', 'transparent');
+
+  const lab = svg.append('g').selectAll('text').data(d3.range(K)).enter().append('text')
+    .text(k => labels[k])
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '12px').attr('font-weight', '800')
+    .attr('letter-spacing', '0.04em')
+    .style('fill', k => COLORS[k])
+    .style('pointer-events', 'none');
+
+  function layout() {
+    nodes.forEach(d => {
+      d.x = Math.max(pad, Math.min(W - pad, d.x));
+      d.y = Math.max(pad + 8, Math.min(H - pad, d.y));
+    });
+    hulls.attr('d', k => {
+      const hull = paddedHull(nodes.filter(n => n.k === k).map(n => [n.x, n.y]), 18);
+      return hull ? hullCurve(hull) : null;
+    });
+    link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeG.attr('transform', d => `translate(${d.x},${d.y})`);
+    lab.attr('x', k => d3.mean(nodes.filter(n => n.k === k), n => n.x))
+      .attr('y', k => d3.min(nodes.filter(n => n.k === k), n => n.y) - 20);
+  }
+
+  function setFocus(k) {
+    nodeG.style('opacity', d => k == null || d.k === k ? 1 : 0.18);
+    link.style('opacity', d => {
+      const sk = d.source.k, tk = d.target.k;
+      if (k == null) return 1;
+      return d.intra ? (sk === k ? 1 : 0.08) : ((sk === k || tk === k) ? 0.9 : 0.06);
+    });
+    hulls.style('opacity', hk => k == null || hk === k ? 1 : 0.18);
+    lab.style('opacity', hk => k == null || hk === k ? 1 : 0.2);
+  }
+
+  hit.on('mouseenter', (_, d) => setFocus(d.k)).on('mouseleave', () => setFocus(null));
+  hulls.style('pointer-events', 'all').on('mouseenter', (_, k) => setFocus(k)).on('mouseleave', () => setFocus(null));
+
+  sim.on('tick', layout);
+  layout();
+  if (!reduceMotion) sim.alpha(0.12).restart();
+}
+
+// ---- SLIDE 2: Interactive citation network ----
+function drawGraphDemo() {
+  const el = document.getElementById('graph-demo');
+  if (!el || el.childElementCount > 0) return;
+
+  const W = 520, H = 360;
+  function eraColor(year) {
+    if (year <= 2016) return '#3b5ef5';
+    if (year <= 2019) return '#7c3aed';
+    return '#059669';
+  }
+  const PAPERS = [
+    {id:0,  short:'Bruna',    name:'Spectral CNN', year:2014},
+    {id:1,  short:'DeepWalk', name:'DeepWalk',     year:2014},
+    {id:2,  short:'ChebNet',  name:'ChebyNet',     year:2016},
+    {id:3,  short:'node2vec', name:'node2vec',     year:2016},
+    {id:4,  short:'VGAE',     name:'VGAE',         year:2016},
+    {id:5,  short:'GCN',      name:'GCN',          year:2017},
+    {id:6,  short:'SAGE',     name:'GraphSAGE',    year:2017},
+    {id:7,  short:'GAT',      name:'GAT',          year:2018},
+    {id:8,  short:'GIN',      name:'GIN',          year:2019},
+    {id:9,  short:'DGI',      name:'DGI',          year:2019},
+    {id:10, short:'DAEGC',    name:'DAEGC',        year:2019},
+    {id:11, short:'GRACE',    name:'GRACE',        year:2020},
+    {id:12, short:'MVGRL',    name:'MVGRL',        year:2020},
+    {id:13, short:'SDCN',     name:'SDCN',         year:2020},
+    {id:14, short:'GraphMAE', name:'GraphMAE',     year:2022},
+    {id:15, short:'NS4GC',    name:'NS4GC',        year:2024}
+  ];
+  // [citer, cited]  论文 i 引用 论文 j
+  const CITES = [
+    [2,0],[3,1],[4,1],[5,0],[5,2],[6,1],[6,3],[6,5],[7,5],
+    [8,5],[8,6],[9,5],[9,6],[10,4],[10,5],
+    [11,5],[11,9],[12,5],[12,9],[13,5],[13,10],
+    [14,5],[14,9],[14,11],[15,8],[15,11],[15,14],[9,7]
+  ];
+
+  const cited = new Array(PAPERS.length).fill(0);
+  const citing = new Array(PAPERS.length).fill(0);
+  CITES.forEach(([s, t]) => { citing[s]++; cited[t]++; });
+  const rScale = d3.scaleSqrt().domain([0, d3.max(cited)]).range([6, 14]);
+  const radius = d => rScale(d.cited);
+  const xYear = d3.scaleLinear().domain([2014, 2024]).range([86, W - 86]);
+
+  const nodes = PAPERS.map(p => ({
+    ...p,
+    cited: cited[p.id],
+    citing: citing[p.id],
+    color: eraColor(p.year),
+    x: xYear(p.year) + (Math.random() - 0.5) * 24,
+    y: H * 0.5 + (Math.random() - 0.5) * 160
+  }));
+  const links = CITES.map(([s, t]) => ({source: s, target: t}));
+  const nbrs = new Map(nodes.map(n => [n.id, new Set()]));
+  CITES.forEach(([s, t]) => { nbrs.get(s).add(t); nbrs.get(t).add(s); });
+
+  const svg = d3.select(el)
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+  const svgNode = svg.node();
+
+  const defs = svg.append('defs');
+  const shadow = defs.append('filter').attr('id', 'cite-shadow')
+    .attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%');
+  shadow.append('feDropShadow')
+    .attr('dx', 0).attr('dy', 1).attr('stdDeviation', 1.15)
+    .attr('flood-color', 'rgba(26,32,56,0.28)');
+  defs.append('marker').attr('id', 'cite-arrow').attr('viewBox', '0 0 8 8')
+    .attr('refX', 7).attr('refY', 4)
+    .attr('markerWidth', 5.5).attr('markerHeight', 5.5)
+    .attr('orient', 'auto')
+    .append('path').attr('d', 'M0,0 L8,4 L0,8 Z').attr('fill', 'rgba(59,94,245,0.45)');
+  defs.append('marker').attr('id', 'cite-arrow-hi').attr('viewBox', '0 0 8 8')
+    .attr('refX', 7).attr('refY', 4)
+    .attr('markerWidth', 5.5).attr('markerHeight', 5.5)
+    .attr('orient', 'auto')
+    .append('path').attr('d', 'M0,0 L8,4 L0,8 Z').attr('fill', '#3b5ef5');
+
+  const line = svg.append('g').selectAll('line').data(links).enter().append('line')
+    .attr('stroke', 'rgba(59,94,245,0.38)').attr('stroke-width', 1.35)
+    .attr('marker-end', 'url(#cite-arrow)')
+    .style('pointer-events', 'none');
+
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(58).strength(0.45))
+    .force('charge', d3.forceManyBody().strength(-220))
+    .force('center', d3.forceCenter(W / 2, H / 2 + 8))
+    .force('collide', d3.forceCollide().radius(d => radius(d) + 14).iterations(2))
+    .force('x', d3.forceX(d => xYear(d.year)).strength(0.09))
+    .force('y', d3.forceY(H / 2).strength(0.05))
+    .alphaDecay(0.028)
+    .stop();
+
+  const tip = document.getElementById('graph-tooltip');
+  let dragging = false;
+
+  function sid(d) { return typeof d === 'object' ? d.id : d; }
+
+  function eventClient(event) {
+    const src = event?.sourceEvent ?? event;
+    const t = src.touches?.[0] ?? src.changedTouches?.[0] ?? src;
+    return [t.clientX, t.clientY];
+  }
+
+  function setFocus(id) {
+    if (id == null) {
+      nodeG.style('opacity', 1);
+      line.attr('stroke', 'rgba(59,94,245,0.38)').attr('stroke-width', 1.35)
+          .attr('marker-end', 'url(#cite-arrow)');
+      return;
+    }
+    const nb = nbrs.get(id);
+    nodeG.style('opacity', d => d.id === id || nb.has(d.id) ? 1 : 0.14);
+    line.attr('stroke', d => {
+        const s = sid(d.source), t = sid(d.target);
+        return (s === id || t === id) ? '#3b5ef5' : 'rgba(59,94,245,0.08)';
+      })
+      .attr('stroke-width', d => {
+        const s = sid(d.source), t = sid(d.target);
+        return (s === id || t === id) ? 2.2 : 1;
+      })
+      .attr('marker-end', d => {
+        const s = sid(d.source), t = sid(d.target);
+        return (s === id || t === id) ? 'url(#cite-arrow-hi)' : 'url(#cite-arrow)';
+      });
+  }
+
+  function showTip(event, d) {
+    if (!tip) return;
+    tip.innerHTML =
+      `<strong>${d.name} (${d.year})</strong><br>` +
+      `<span class="tip-k">被引 ${d.cited}  ·  引用 ${d.citing} 篇  ·  箭头指向被引论文</span>`;
+    tip.hidden = false;
+    moveTip(event);
+  }
+  function moveTip(event) {
+    if (!tip || tip.hidden) return;
+    const [cx, cy] = eventClient(event);
+    if (cx == null || cy == null) return;
+    const stage = tip.parentElement.getBoundingClientRect();
+    const x = cx - stage.left;
+    const y = cy - stage.top;
+    const flipX = x > stage.width - 190;
+    const flipY = y > stage.height - 64;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+    tip.style.transform = `translate(${flipX ? -12 : 12}px, ${flipY ? -48 : 12}px)` +
+      (flipX ? ' translateX(-100%)' : '');
+  }
+  function hideTip() { if (tip) tip.hidden = true; }
+
+  function setPinned(el, pinned) {
+    d3.select(el).select('.pin-ring').attr('stroke-opacity', pinned ? 0.85 : 0);
+  }
+
+  const nodeG = svg.append('g').selectAll('g').data(nodes).enter().append('g')
+    .attr('cursor', 'grab')
+    .call(d3.drag()
+      .clickDistance(4)
+      .on('start', function(event, d) {
+        dragging = true;
+        d._wasPinned = d.fx != null;
+        const [px, py] = d3.pointer(event, svgNode);
+        d._px = px;
+        d._py = py;
+        d3.select(this).raise().attr('cursor', 'grabbing');
+        if (!event.active) sim.alphaTarget(0.28).restart();
+        d.fx = px; d.fy = py;
+        setFocus(d.id);
+      })
+      .on('drag', (event, d) => {
+        const [px, py] = d3.pointer(event, svgNode);
+        d.fx = px; d.fy = py;
+        moveTip(event);
+      })
+      .on('end', function(event, d) {
+        dragging = false;
+        d3.select(this).attr('cursor', 'grab');
+        if (!event.active) sim.alphaTarget(0);
+        const [px, py] = d3.pointer(event, svgNode);
+        const moved = Math.hypot(px - d._px, py - d._py) >= 4;
+        if (!moved) {
+          d.fx = d.fy = null;
+          setPinned(this, false);
+          if (d._wasPinned) sim.alpha(0.4).restart();
+        } else {
+          setPinned(this, true);
+        }
+      }))
+    .on('mouseenter', (event, d) => { setFocus(d.id); showTip(event, d); })
+    .on('mousemove', moveTip)
+    .on('mouseleave', () => { if (!dragging) { setFocus(null); hideTip(); } });
+
+  nodeG.append('circle')
+    .attr('class', d => d.cited >= 4 ? 'hub-glow' : null)
+    .attr('r', d => radius(d) + 7)
+    .attr('fill', d => d.color)
+    .attr('opacity', 0.16)
+    .style('pointer-events', 'none');
+
+  nodeG.append('circle')
+    .attr('class', 'pin-ring')
+    .attr('r', d => radius(d) + 3.5)
+    .attr('fill', 'none')
+    .attr('stroke', d => d.color)
+    .attr('stroke-width', 1.2)
+    .attr('stroke-dasharray', '2.5 2')
+    .attr('stroke-opacity', 0)
+    .style('pointer-events', 'none');
+
+  nodeG.append('circle')
+    .attr('class', 'node-body')
+    .attr('r', d => radius(d))
+    .attr('fill', d => d.color)
+    .attr('stroke', '#ffffff')
+    .attr('stroke-width', 1.6)
+    .attr('filter', 'url(#cite-shadow)')
+    .style('pointer-events', 'none');
+
+  nodeG.append('text')
+    .text(d => d.short)
+    .attr('text-anchor', 'middle')
+    .attr('dy', d => radius(d) + 11)
+    .attr('font-size', '8.5px').attr('font-weight', '700')
+    .style('fill', d => d.color)
+    .style('pointer-events', 'none');
+
+  nodeG.append('circle')
+    .attr('class', 'node-hit')
+    .attr('r', d => Math.max(radius(d) + 3, 11))
+    .attr('fill', 'transparent');
+
+  function tick() {
+    nodes.forEach(d => {
+      const p = radius(d) + (d.cited >= 2 ? 14 : 8);
+      d.x = Math.max(p, Math.min(W - p, d.x));
+      d.y = Math.max(radius(d) + 8, Math.min(H - p, d.y));
+    });
+    line.each(function(d) {
+      const s = d.source, t = d.target;
+      const dx = t.x - s.x, dy = t.y - s.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const tr = radius(t) + 4;
+      d3.select(this)
+        .attr('x1', s.x).attr('y1', s.y)
+        .attr('x2', t.x - dx / len * tr)
+        .attr('y2', t.y - dy / len * tr);
+    });
+    nodeG.attr('transform', d => `translate(${d.x},${d.y})`);
+  }
+  sim.on('tick', tick);
+  sim.tick(90);
+  tick();
+  sim.alpha(0.22).restart();
+  graphDemoSim = sim;
+
+  document.getElementById('graph-demo-reset')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    nodes.forEach(d => { d.fx = d.fy = null; });
+    nodeG.selectAll('.pin-ring').attr('stroke-opacity', 0);
+    setFocus(null);
+    hideTip();
+    sim.alpha(0.9).restart();
+  });
+}
+
+// ---- SLIDE 3: Clustering demo ----
+function drawClusteringDemo() {
+  const el = document.getElementById('clustering-demo');
+  if (!el || el.childElementCount > 0) return;
+  const W = 440, H = 280;
+  const svg = d3.select(el)
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  const K = 4, ringN = 6;
+  const clusterCenters = [
+    {x: W * 0.28, y: H * 0.32},
+    {x: W * 0.72, y: H * 0.30},
+    {x: W * 0.27, y: H * 0.72},
+    {x: W * 0.73, y: H * 0.70},
+  ];
+  const allNodes = [];
+  const allLinks = [];
+  clusterCenters.forEach((c, k) => {
+    const hubId = allNodes.length;
+    allNodes.push({id: hubId, cluster: k, hub: true, x: c.x, y: c.y});
+    for (let i = 0; i < ringN; i++) {
+      const a = (i / ringN) * Math.PI * 2 - Math.PI / 2;
+      const id = allNodes.length;
+      allNodes.push({id, cluster: k, hub: false, x: c.x + 34 * Math.cos(a), y: c.y + 30 * Math.sin(a)});
+      allLinks.push({source: hubId, target: id, intra: true});
+      allLinks.push({source: id, target: hubId + 1 + ((i + 1) % ringN), intra: true});
+    }
+  });
+  const hubOf = k => k * (ringN + 1);
+  [[0,1],[0,2],[1,3],[2,3]].forEach(([a, b], i) => {
+    allLinks.push({source: hubOf(a), target: hubOf(b), intra: false});
+    allLinks.push({source: hubOf(a) + 1 + (i % ringN), target: hubOf(b) + 1 + ((i + 2) % ringN), intra: false});
+  });
+
+  const sim = d3.forceSimulation(allNodes)
+    .force('link', d3.forceLink(allLinks).id(d => d.id)
+      .distance(d => d.intra ? 32 : 118).strength(d => d.intra ? 0.75 : 0.06))
+    .force('charge', d3.forceManyBody().strength(-48))
+    .force('collide', d3.forceCollide(13))
+    .force('x', d3.forceX(d => clusterCenters[d.cluster].x).strength(0.14))
+    .force('y', d3.forceY(d => clusterCenters[d.cluster].y).strength(0.14))
+    .stop();
+  sim.tick(140);
+
+  allNodes.forEach(d => {
+    d.x = Math.max(18, Math.min(W - 18, d.x));
+    d.y = Math.max(18, Math.min(H - 18, d.y));
+  });
+
+  const hullPath = svg.append('g').selectAll('path').data(d3.range(K)).enter().append('path')
+    .attr('fill', k => COLORS[k])
+    .attr('fill-opacity', 0)
+    .attr('stroke', k => COLORS[k])
+    .attr('stroke-opacity', 0)
+    .attr('stroke-width', 1.2)
+    .attr('stroke-dasharray', '5 4')
+    .style('pointer-events', 'none')
+    .attr('d', k => {
+      const hull = paddedHull(allNodes.filter(n => n.cluster === k).map(n => [n.x, n.y]), 16);
+      return hull ? hullCurve(hull) : null;
+    });
+
+  const link = svg.append('g').selectAll('line').data(allLinks).enter().append('line')
+    .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+    .attr('x2', d => d.target.x).attr('y2', d => d.target.y)
+    .attr('stroke', d => d.intra ? COLORS[d.source.cluster] : 'rgba(26,32,56,0.18)')
+    .attr('stroke-opacity', d => d.intra ? 0.35 : 0.2)
+    .attr('stroke-width', d => d.intra ? 1.4 : 1)
+    .style('pointer-events', 'none');
+
+  const node = svg.append('g').selectAll('circle').data(allNodes).enter().append('circle')
+    .attr('cx', d => d.x).attr('cy', d => d.y)
+    .attr('r', d => d.hub ? 8 : 6.5)
+    .attr('fill', '#94a3b8')
+    .attr('stroke', '#ffffff')
+    .attr('stroke-width', 1.4)
+    .attr('opacity', 0.55)
+    .style('cursor', 'pointer');
+
+  const labels = svg.append('g').selectAll('text').data(d3.range(K)).enter().append('text')
+    .text(k => '簇 ' + (k + 1))
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '11px').attr('font-weight', '700')
+    .style('fill', k => COLORS[k])
+    .attr('opacity', 0)
+    .style('pointer-events', 'none')
+    .attr('x', k => d3.mean(allNodes.filter(n => n.cluster === k), n => n.x))
+    .attr('y', k => d3.min(allNodes.filter(n => n.cluster === k), n => n.y) - 14);
+
+  function setCluster(k) {
+    const on = k != null;
+    node.attr('opacity', d => !on || d.cluster === k ? 1 : 0.14);
+    link.attr('stroke-opacity', d => {
+      if (!on) return d.intra ? 0.4 : 0.2;
+      const hit = d.source.cluster === k || d.target.cluster === k;
+      return hit ? (d.intra ? 0.85 : 0.45) : 0.05;
+    });
+    hullPath.attr('fill-opacity', c => !on || c === k ? 0.1 : 0.02)
+      .attr('stroke-opacity', c => !on || c === k ? 0.4 : 0.08);
+    labels.attr('opacity', c => !on || c === k ? 0.9 : 0.2);
+  }
+
+  node.on('mouseenter', (_, d) => setCluster(d.cluster))
+      .on('mouseleave', () => setCluster(null));
+
+  const delay = reduceMotion ? 0 : 280;
+  node.transition().delay(d => delay + d.cluster * 160).duration(reduceMotion ? 0 : 450)
+    .attr('fill', d => COLORS[d.cluster]).attr('opacity', 0.95);
+  hullPath.transition().delay(delay + 420).duration(500)
+    .attr('fill-opacity', 0.1).attr('stroke-opacity', 0.4);
+  labels.transition().delay(delay + 500).duration(400).attr('opacity', 0.85);
+}
+
+// ---- SLIDE 7: Geometry demo (unit hypersphere 3D) ----
+function drawGeometryDemo() {
+  mountRotatingSphere(document.getElementById('geometry-demo'), {
+    key: 'geo',
+    W: 380,
+    H: 220,
+    protoVecs: [
+      [0, 0, 1],
+      [1, 0, -0.5],
+      [-0.5, Math.sqrt(3) / 2, -0.5]
+    ],
+    seed: 3,
+    nPer: 8,
+    spread: 0.38,
+    rays: true
+  });
+}
+
+// ---- SLIDE 8: CAGM demo (interleaved circle vs clustered blobs) ----
+function drawCAGMDemo() {
+  const el = document.getElementById('cagm-demo');
+  if (!el || el.childElementCount > 0) return;
+  const W = 560, H = 268;
+  const svg = d3.select(el)
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  const panels = [
+    {h: 0.12, title: '异配 / 低同配性', tag: 'h ≈ 0.12', clustered: false},
+    {h: 0.50, title: '混合同配性', tag: 'h ≈ 0.50', clustered: false},
+    {h: 0.88, title: '同配 / 高同配性', tag: 'h ≈ 0.88', clustered: true},
+  ];
+  const panelW = W / 3;
+  const K = 3, npc = 6, N = K * npc;
+
+  function pairU(i, j) {
+    const t = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453;
+    return t - Math.floor(t);
+  }
+
+  const order = d3.range(N); // i → cluster i % K
+
+  panels.forEach((p, pi) => {
+    const g = svg.append('g').attr('transform', `translate(${panelW * pi},0)`);
+    const cx = 70, cy = 132, r = 54;
+    const rng = mulberry32(17 + pi * 9);
+    let nodes;
+    if (p.clustered) {
+      const blobR = 34;
+      const innerR = 16;
+      const centers = d3.range(K).map(k => {
+        const a = -Math.PI / 2 + k * Math.PI * 2 / K;
+        return {x: cx + blobR * Math.cos(a), y: cy + blobR * Math.sin(a)};
+      });
+      nodes = order.map(i => {
+        const k = i % K;
+        const m = Math.floor(i / K);
+        const a = -Math.PI / 2 + (m / npc) * Math.PI * 2;
+        const cc = centers[k];
+        return {
+          i, k,
+          x: cc.x + innerR * Math.cos(a) + (rng() - 0.5) * 3.2,
+          y: cc.y + innerR * 0.92 * Math.sin(a) + (rng() - 0.5) * 3.2
+        };
+      });
+    } else {
+      nodes = order.map(i => {
+        const a = -Math.PI / 2 + (i / N) * Math.PI * 2;
+        return {i, k: i % K, x: cx + r * Math.cos(a), y: cy + r * Math.sin(a)};
+      });
+    }
+
+    const edges = [];
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const intra = nodes[i].k === nodes[j].k;
+        const u = pairU(i, j);
+        const keep = intra ? u < 0.10 + 0.80 * p.h : u < 0.48 * (1 - p.h) + 0.04;
+        if (keep) edges.push({i, j, intra, k: nodes[i].k});
+      }
+    }
+    const intraN = edges.filter(e => e.intra).length;
+    const hHat = edges.length ? intraN / edges.length : 0;
+
+    if (pi > 0) g.append('line').attr('x1', 0.5).attr('y1', 14).attr('x2', 0.5).attr('y2', H - 10)
+      .attr('stroke', 'rgba(26,32,56,0.08)');
+
+    g.append('text').text(p.title)
+      .attr('x', panelW / 2).attr('y', 16)
+      .attr('text-anchor', 'middle').attr('font-size', '11px').attr('font-weight', '700')
+      .style('fill', 'var(--text)');
+    g.append('text').text(`${p.tag}  ·  簇内边 ${Math.round(hHat * 100)}%`)
+      .attr('x', panelW / 2).attr('y', 31)
+      .attr('text-anchor', 'middle').attr('font-size', '10px')
+      .style('fill', 'rgba(26,32,56,0.45)');
+
+    if (p.clustered) {
+      d3.range(K).forEach(k => {
+        const hull = paddedHull(nodes.filter(n => n.k === k).map(n => [n.x, n.y]), 11);
+        if (!hull) return;
+        g.append('path').attr('d', hullCurve(hull))
+          .attr('fill', COLORS[k]).attr('fill-opacity', 0.10)
+          .attr('stroke', COLORS[k]).attr('stroke-opacity', 0.35)
+          .attr('stroke-width', 1.1).attr('stroke-dasharray', '4 3')
+          .style('pointer-events', 'none');
+      });
+    } else {
+      g.append('circle').attr('cx', cx).attr('cy', cy).attr('r', r)
+        .attr('fill', 'none').attr('stroke', 'rgba(26,32,56,0.08)').attr('stroke-dasharray', '3 3');
+    }
+
+    const edgeG = g.append('g').style('pointer-events', 'none');
+    edges.filter(e => !e.intra).forEach(e => {
+      edgeG.append('line')
+        .attr('x1', nodes[e.i].x).attr('y1', nodes[e.i].y)
+        .attr('x2', nodes[e.j].x).attr('y2', nodes[e.j].y)
+        .attr('stroke', 'rgba(26,32,56,0.42)').attr('stroke-width', 1.15);
+    });
+    edges.filter(e => e.intra).forEach(e => {
+      edgeG.append('line')
+        .attr('x1', nodes[e.i].x).attr('y1', nodes[e.i].y)
+        .attr('x2', nodes[e.j].x).attr('y2', nodes[e.j].y)
+        .attr('stroke', COLORS[e.k]).attr('stroke-opacity', 0.8).attr('stroke-width', 1.55);
+    });
+
+    nodes.forEach(n => {
+      g.append('circle').attr('cx', n.x).attr('cy', n.y).attr('r', 5.2)
+        .attr('fill', COLORS[n.k]).attr('stroke', '#fff').attr('stroke-width', 1.3);
+    });
+
+    // Adjacency matrix, rows/cols sorted by cluster so blocks are readable
+    const byCluster = d3.range(N).sort((a, b) => nodes[a].k - nodes[b].k || a - b);
+    const cell = 3.2;
+    const mSize = N * cell;
+    const mx = 128, my = cy - mSize / 2;
+    const present = new Set(edges.map(e => e.i < e.j ? e.i + ',' + e.j : e.j + ',' + e.i));
+
+    g.append('text').text('A')
+      .attr('x', mx + mSize / 2).attr('y', my - 5)
+      .attr('text-anchor', 'middle').attr('font-size', '9px')
+      .style('fill', 'rgba(26,32,56,0.4)');
+
+    byCluster.forEach((ii, ri) => {
+      byCluster.forEach((jj, ci) => {
+        let fill = 'rgba(26,32,56,0.05)';
+        if (ri === ci) fill = '#e8ecf7';
+        else {
+          const key = ii < jj ? ii + ',' + jj : jj + ',' + ii;
+          if (present.has(key)) {
+            fill = nodes[ii].k === nodes[jj].k ? COLORS[nodes[ii].k] : 'rgba(26,32,56,0.38)';
+          }
+        }
+        g.append('rect')
+          .attr('x', mx + ci * cell).attr('y', my + ri * cell)
+          .attr('width', cell - 0.4).attr('height', cell - 0.4)
+          .attr('fill', fill);
+      });
+    });
+    d3.range(K).forEach(k => {
+      g.append('rect')
+        .attr('x', mx - 5).attr('y', my + k * npc * cell)
+        .attr('width', 3).attr('height', npc * cell - 0.4)
+        .attr('fill', COLORS[k]);
+      g.append('rect')
+        .attr('x', mx + k * npc * cell).attr('y', my + mSize + 1)
+        .attr('width', npc * cell - 0.4).attr('height', 3)
+        .attr('fill', COLORS[k]);
+    });
+  });
+}
+
+// ---- SLIDE 9: SwiFRT signal profiles ----
+function drawSwiFRTDemo() {
+  const el = document.getElementById('swifrt-demo');
+  if (!el || el.childElementCount > 0) return;
+  const W = 440, H = 210;
+  const svg = d3.select(el)
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  const L = 5;
+  const profiles = [
+    {label: '平滑扩散', color: COLORS[0], vals: [1.00, 0.86, 0.74, 0.66, 0.61]},
+    {label: '局部振荡', color: COLORS[1], vals: [1.00, 0.22, 0.82, 0.18, 0.78]},
+    {label: '跨跳放大', color: COLORS[2], vals: [0.48, 0.62, 0.78, 0.91, 1.00]},
+  ];
+
+  const xScale = d3.scaleLinear().domain([0, L - 1]).range([48, W - 18]);
+  const yScale = d3.scaleLinear().domain([0, 1.08]).range([H - 28, 18]);
+  const lineGen = d3.line().x((_, i) => xScale(i)).y(d => yScale(d)).curve(d3.curveLinear);
+  const areaGen = d3.area().x((_, i) => xScale(i)).y0(yScale(0)).y1(d => yScale(d)).curve(d3.curveLinear);
+
+  [0, 0.5, 1].forEach(v => {
+    svg.append('line').attr('x1', xScale(0)).attr('x2', xScale(L - 1))
+      .attr('y1', yScale(v)).attr('y2', yScale(v))
+      .attr('stroke', 'rgba(26,32,56,0.07)');
+    svg.append('text').text(v.toFixed(1))
+      .attr('x', xScale(0) - 8).attr('y', yScale(v) + 3)
+      .attr('text-anchor', 'end').attr('font-size', '9px')
+      .style('fill', 'rgba(26,32,56,0.38)');
+  });
+  d3.range(L).forEach(i => {
+    svg.append('text').text('ℓ=' + i)
+      .attr('x', xScale(i)).attr('y', yScale(0) + 14)
+      .attr('text-anchor', 'middle').attr('font-size', '10px')
+      .style('fill', 'rgba(26,32,56,0.42)');
+  });
+  svg.append('text').text('rᵢ,f')
+    .attr('x', 8).attr('y', 14)
+    .attr('font-size', '10px').attr('font-weight', '600')
+    .style('fill', 'rgba(26,32,56,0.4)');
+
+  const series = svg.append('g');
+  const groups = profiles.map(p => {
+    const g = series.append('g').attr('class', 'sw-series');
+    g.append('path').datum(p.vals).attr('d', areaGen)
+      .attr('fill', p.color).attr('fill-opacity', 0.08).style('pointer-events', 'none');
+    const path = g.append('path').datum(p.vals).attr('d', lineGen)
+      .attr('fill', 'none').attr('stroke', p.color).attr('stroke-width', 2.4)
+      .style('pointer-events', 'none');
+    g.append('path').datum(p.vals).attr('d', lineGen)
+      .attr('fill', 'none').attr('stroke', 'transparent').attr('stroke-width', 14)
+      .style('cursor', 'pointer');
+    p.vals.forEach((v, i) => {
+      g.append('circle').attr('cx', xScale(i)).attr('cy', yScale(v)).attr('r', 4)
+        .attr('fill', p.color).attr('stroke', '#fff').attr('stroke-width', 1.2)
+        .style('pointer-events', 'none');
+    });
+    if (!reduceMotion) {
+      const len = path.node().getTotalLength();
+      path.attr('stroke-dasharray', len).attr('stroke-dashoffset', len)
+        .transition().duration(750).delay(80).attr('stroke-dashoffset', 0);
+    }
+    return g;
+  });
+
+  function focus(i) {
+    groups.forEach((g, gi) => g.attr('opacity', i == null || gi === i ? 1 : 0.12));
+  }
+  groups.forEach((g, i) => {
+    g.on('mouseenter', () => focus(i)).on('mouseleave', () => focus(null));
+  });
+}
+
+// ---- SLIDE 10: Sphere demo (rotating 3D) ----
+function drawSphereDemo() {
+  mountRotatingSphere(document.getElementById('sphere-demo'), {
+    key: 'obj',
+    W: 400,
+    H: 250,
+    protoVecs: [
+      [1, 1, 1],
+      [1, -1, -1],
+      [-1, 1, -1],
+      [-1, -1, 1]
+    ],
+    seed: 11,
+    nPer: 8,
+    spread: 0.42
+  });
+}
+
+// ---- SLIDE 11: Efficiency bar chart ----
+function drawEfficiencyChart() {
+  const el = document.getElementById('efficiency-chart');
+  if (!el || el.querySelector('svg')) return;
+  const W = 460, H = 120;
+  const svg = d3.select(el).append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet')
+    .style('width','100%').style('height','100%');
+
+  const data = [
+    {name:'Node2Vec', time:506, color:'#94a3b8'},
+    {name:'DAEGC',    time:123, color:'#94a3b8'},
+    {name:'DinkNet',  time:112, color:'#94a3b8'},
+    {name:'DMoN',     time:76,  color:'#94a3b8'},
+    {name:'NS4GC',    time:345, color:'#94a3b8'},
+    {name:'OFAG',     time:12.43, color:'#34d399'},
+  ];
+  const maxT = d3.max(data, d => d.time);
+  const xScale = d3.scaleLinear().domain([0, maxT]).range([90, W-40]);
+  const yScale = d3.scaleBand().domain(data.map(d=>d.name)).range([5, H-5]).padding(0.25);
+
+  data.forEach(d => {
+    svg.append('rect')
+      .attr('x', 90)
+      .attr('y', yScale(d.name))
+      .attr('width', 0)
+      .attr('height', yScale.bandwidth())
+      .attr('fill', d.color)
+      .attr('rx', 3)
+      .transition().duration(800).delay(data.indexOf(d)*80)
+      .attr('width', xScale(d.time) - 90);
+
+    svg.append('text').text(d.name)
+      .attr('x', 85).attr('y', yScale(d.name) + yScale.bandwidth()/2 + 4)
+      .attr('text-anchor','end').attr('font-size','10px')
+      .attr('fill', d.name === 'OFAG' ? '#34d399' : 'rgba(26,32,56,0.45)').attr('font-weight', d.name==='OFAG'?'700':'400');
+
+    svg.append('text').text(d.time + 'm')
+      .attr('x', Math.min(xScale(d.time) + 4, W-2))
+      .attr('y', yScale(d.name) + yScale.bandwidth()/2 + 4)
+      .attr('font-size','10px')
+      .attr('fill', d.name==='OFAG'?'#34d399':'rgba(26,32,56,0.4)').attr('font-weight','600');
+  });
+}
+
+// ---- SLIDE 12: Prior ablation bars + pretraining dynamics ----
+function drawPriorAblationChart() {
+  const el = document.getElementById('prior-ablation-chart');
+  if (!el || el.querySelector('svg')) return;
+  const W = 460, H = 176;
+  const m = { t: 16, r: 12, b: 42, l: 36 };
+  const svg = d3.select(el).append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  const data = [
+    { name: '[0.1, 0.9]', sub: '全覆盖', all: 39.49, homo: 62.46, hetero: 16.51, full: true },
+    { name: '[0.7, 0.9]', sub: '仅同配', all: 38.56, homo: 61.46, hetero: 15.65, full: false },
+    { name: '[0.4, 0.6]', sub: '近中性', all: 36.34, homo: 57.52, hetero: 15.15, full: false },
+    { name: '[0.1, 0.3]', sub: '仅异配', all: 32.37, homo: 51.62, hetero: 13.13, full: false }
+  ];
+
+  const x = d3.scaleBand().domain(data.map(d => d.name)).range([m.l, W - m.r]).padding(0.28);
+  const y = d3.scaleLinear().domain([28, 42]).range([H - m.b, m.t]);
+
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`)
+    .call(d3.axisBottom(x).tickSize(0).tickPadding(4))
+    .call(g => {
+      g.select('.domain').attr('stroke', 'rgba(26,32,56,0.12)');
+      g.selectAll('text').attr('font-size', '10px').attr('fill', 'rgba(26,32,56,0.55)').attr('font-weight', '600');
+    });
+  svg.append('g').attr('transform', `translate(${m.l},0)`)
+    .call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat(d3.format('.0f')))
+    .call(g => {
+      g.select('.domain').remove();
+      g.selectAll('.tick line').attr('stroke', 'rgba(59,94,245,0.08)');
+      g.selectAll('text').attr('font-size', '10px').attr('fill', 'rgba(26,32,56,0.4)');
+    });
+
+  data.forEach((d, i) => {
+    const bar = svg.append('rect')
+      .attr('x', x(d.name))
+      .attr('y', y(28))
+      .attr('width', x.bandwidth())
+      .attr('height', 0)
+      .attr('rx', 4)
+      .attr('fill', d.full ? '#34d399' : '#94a3b8')
+      .attr('opacity', d.full ? 0.92 : 0.55);
+    bar.transition().duration(700).delay(80 + i * 90)
+      .attr('y', y(d.all))
+      .attr('height', y(28) - y(d.all));
+
+    svg.append('text').text(d.all.toFixed(2))
+      .attr('x', x(d.name) + x.bandwidth() / 2)
+      .attr('y', y(d.all) - 6)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '11px')
+      .attr('font-weight', '700')
+      .attr('fill', d.full ? '#059669' : 'rgba(26,32,56,0.45)')
+      .attr('opacity', 0)
+      .transition().delay(280 + i * 90).duration(300)
+      .attr('opacity', 1);
+
+    svg.append('text').text(d.sub)
+      .attr('x', x(d.name) + x.bandwidth() / 2)
+      .attr('y', H - 10)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '10px')
+      .attr('fill', d.full ? '#059669' : 'rgba(26,32,56,0.4)');
+  });
+}
+
+function drawPretrainDynamics() {
+  const el = document.getElementById('pretrain-dynamics-chart');
+  if (!el || el.querySelector('svg')) return;
+  const W = 540, H = 248;
+  const m = { t: 6, r: 46, b: 24, l: 34 };
+  const gap = 7;
+  const svg = d3.select(el).append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  // NMI from ckpt_perf_avg.csv (Homo_Avg / Hetero_Avg / All_Avg), hardcoded
+  const ckptNmi = [
+    { t: 0,     homo: 51.02, hetero: 11.95, all: 31.49 },
+    { t: 50,    homo: 59.19, hetero: 13.22, all: 36.21 },
+    { t: 500,   homo: 61.51, hetero: 14.48, all: 38.00 },
+    { t: 1000,  homo: 61.18, hetero: 14.98, all: 38.08 },
+    { t: 1500,  homo: 61.67, hetero: 15.75, all: 38.71 },
+    { t: 2000,  homo: 61.90, hetero: 15.54, all: 38.72 },
+    { t: 2500,  homo: 62.24, hetero: 16.16, all: 39.20 },
+    { t: 3000,  homo: 62.02, hetero: 15.83, all: 38.92 },
+    { t: 3500,  homo: 61.87, hetero: 15.59, all: 38.73 },
+    { t: 4000,  homo: 62.10, hetero: 16.06, all: 39.08 },
+    { t: 4500,  homo: 62.25, hetero: 16.22, all: 39.23 },
+    { t: 5000,  homo: 62.18, hetero: 16.24, all: 39.21 },
+    { t: 5500,  homo: 62.20, hetero: 15.98, all: 39.09 },
+    { t: 6000,  homo: 62.34, hetero: 16.33, all: 39.34 },
+    { t: 6500,  homo: 62.07, hetero: 16.28, all: 39.18 },
+    { t: 7000,  homo: 62.40, hetero: 16.43, all: 39.42 },
+    { t: 7500,  homo: 61.70, hetero: 16.37, all: 39.04 },
+    { t: 8000,  homo: 62.13, hetero: 16.37, all: 39.25 },
+    { t: 8500,  homo: 62.61, hetero: 16.50, all: 39.55 },
+    { t: 9000,  homo: 62.70, hetero: 16.30, all: 39.50 },
+    { t: 9500,  homo: 62.42, hetero: 16.32, all: 39.37 },
+    { t: 10000, homo: 62.03, hetero: 16.29, all: 39.16 }
+  ];
+
+  const rows = [
+    { key: 'homo',   name: '同配', color: '#3b5ef5', y0: 50.2, y1: 64.0 },
+    { key: 'all',    name: '全部', color: '#059669', y0: 30.4, y1: 41.0 },
+    { key: 'hetero', name: '异配', color: '#e11d48', y0: 11.4, y1: 17.0 }
+  ];
+  const panelH = (H - m.t - m.b - gap * (rows.length - 1)) / rows.length;
+  const x = d3.scaleLinear().domain([0, 10000]).range([m.l, W - m.r]);
+
+  rows.forEach((row, i) => {
+    const yTop = m.t + i * (panelH + gap);
+    const y = d3.scaleLinear().domain([row.y0, row.y1]).range([yTop + panelH, yTop]);
+    const pts = ckptNmi.map(d => ({ t: d.t, v: d[row.key] }));
+    const line = d3.line().x(d => x(d.t)).y(d => y(d.v)).curve(d3.curveMonotoneX);
+
+    svg.append('rect')
+      .attr('x', m.l).attr('y', yTop)
+      .attr('width', W - m.l - m.r).attr('height', panelH)
+      .attr('fill', i % 2 ? 'rgba(59,94,245,0.025)' : 'transparent')
+      .attr('rx', 4);
+
+    svg.append('line')
+      .attr('x1', x(1000)).attr('x2', x(1000))
+      .attr('y1', yTop).attr('y2', yTop + panelH)
+      .attr('stroke', 'rgba(217,119,6,0.45)')
+      .attr('stroke-dasharray', '3 3')
+      .attr('stroke-width', 1);
+
+    svg.append('g').attr('transform', `translate(${m.l},0)`)
+      .call(d3.axisLeft(y).ticks(3).tickSize(-(W - m.l - m.r)).tickFormat(d3.format('.0f')))
+      .call(g => {
+        g.select('.domain').remove();
+        g.selectAll('.tick line').attr('stroke', 'rgba(59,94,245,0.08)');
+        g.selectAll('text').attr('font-size', '9px').attr('fill', 'rgba(26,32,56,0.4)');
+      });
+
+    const path = svg.append('path')
+      .attr('d', line(pts))
+      .attr('fill', 'none')
+      .attr('stroke', row.color)
+      .attr('stroke-width', 2)
+      .attr('stroke-linejoin', 'round');
+    const len = path.node().getTotalLength();
+    path.attr('stroke-dasharray', `${len} ${len}`)
+      .attr('stroke-dashoffset', len)
+      .transition().duration(900).delay(i * 80)
+      .attr('stroke-dashoffset', 0);
+
+    svg.selectAll(null).data(pts).enter().append('circle')
+      .attr('cx', d => x(d.t)).attr('cy', d => y(d.v))
+      .attr('r', d => d.t === 0 || d.t === 50 ? 3.1 : 1.8)
+      .attr('fill', row.color)
+      .attr('opacity', 0)
+      .transition().delay(420 + i * 80).duration(200)
+      .attr('opacity', 1);
+
+    svg.append('text').text(row.name)
+      .attr('x', m.l + 6).attr('y', yTop + 12)
+      .attr('font-size', '10px').attr('font-weight', '700')
+      .attr('fill', row.color);
+
+    const last = pts[pts.length - 1];
+    svg.append('text').text(last.v.toFixed(2))
+      .attr('x', x(last.t) + 6).attr('y', y(last.v) + 3)
+      .attr('font-size', '10px').attr('font-weight', '700')
+      .attr('fill', row.color);
+
+    if (i === 0) {
+      svg.append('text').text('~1k')
+        .attr('x', x(1000) + 4).attr('y', yTop + 12)
+        .attr('font-size', '9px').attr('fill', '#d97706').attr('font-weight', '600');
+    }
+    if (i === rows.length - 1) {
+      svg.append('g').attr('transform', `translate(0,${yTop + panelH})`)
+        .call(d3.axisBottom(x).ticks(5).tickFormat(d => d === 0 ? '0' : (d / 1000) + 'k').tickSize(0).tickPadding(6))
+        .call(g => {
+          g.select('.domain').attr('stroke', 'rgba(26,32,56,0.14)');
+          g.selectAll('text').attr('font-size', '10px').attr('fill', 'rgba(26,32,56,0.42)');
+        });
+    }
+  });
+
+  svg.append('text').text('NMI').attr('x', 6).attr('y', 11)
+    .attr('font-size', '9px').attr('fill', 'rgba(26,32,56,0.38)').attr('font-weight', '600');
+  svg.append('text').text('steps').attr('x', W - m.r).attr('y', H - 2)
+    .attr('text-anchor', 'end')
+    .attr('font-size', '9px').attr('fill', 'rgba(26,32,56,0.38)');
+}
+
+function drawPretrainSlide() {
+  drawPriorAblationChart();
+  drawPretrainDynamics();
+}
+
+// =====================================================================
+// SLIDE ANIMATION REGISTRY
+// =====================================================================
+const slideAnimations = {
+  0: drawTitleGraph,
+  2: drawGraphDemo,
+  3: drawClusteringDemo,
+  7: () => { drawGeometryDemo(); },
+  8: drawCAGMDemo,
+  9: drawSwiFRTDemo,
+  10: drawSphereDemo,
+  11: drawEfficiencyChart,
+  12: drawPretrainSlide,
+};
+
+// Trigger initial slide's animations
+window.addEventListener('load', () => {
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      // Clear any 0-width SVGs created during init before layout was ready
+      ['title-graph','graph-demo','clustering-demo','geometry-demo',
+       'cagm-demo','swifrt-demo','sphere-demo','efficiency-chart',
+       'prior-ablation-chart','pretrain-dynamics-chart'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          // Remove empty/0-width SVGs so guards don't block re-draw
+          const svgEl = el.tagName === 'svg' ? el : el.querySelector('svg');
+          if (svgEl && svgEl.childElementCount === 0) {
+            if (el.tagName.toLowerCase() === 'svg') {
+              // already is the svg, will be re-drawn by guard pass
+            } else {
+              svgEl.remove();
+            }
+          }
+        }
+      });
+      slideAnimations[0]?.();
+      MathJax.typesetPromise?.();
+    }, 120);
+  });
+});
+
+
+</script>
+</body>
+</html>
