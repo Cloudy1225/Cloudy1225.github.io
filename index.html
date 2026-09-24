@@ -237,6 +237,10 @@
                 <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 max-h-64 overflow-y-auto news-scroll shadow-inner">
                     <ul class="space-y-3 text-sm">
                         <li class="flex gap-3">
+                            <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">25 Sep 2026</span>
+                            <span>One paper on <b>LLM for Text-Attributed Graph Learning</b> accepted by <b>NeurIPS 2026</b>!</span>
+                        </li>
+                        <li class="flex gap-3">
                             <span class="font-mono text-gray-500 whitespace-nowrap text-xs font-bold pt-1">31 Jul 2026</span>
                             <span>
                                 Selected for the <b>Postgraduate Research &amp; Practice Innovation Program of Jiangsu Province</b>
@@ -592,6 +596,18 @@
         // --- PUBLICATIONS DATA & LOGIC ---
 
         const publicationsData = [
+            {
+                title: "Uncovering Semantic Hierarchies in Text-Attributed Graphs via Variational EM-based LLM–GNN Synergy",
+                authors: "<b>Yunhui Liu</b>, Xudong Jin, Qizhuo Xie, Chunhui Zhao, Xiao Luo, Tao Zheng, Bin Chong, Tieke He",
+                venue: "NeurIPS 2026",
+                year: 2026,
+                tags: ["Text-Attributed Graph", "Taxonomy", "GNN", "LLM"],
+                selected: true,
+                links: [
+                    { name: "Paper", url: "https://openreview.net/forum?id=Rm5u5TMKcq", icon: "fa-regular fa-file-pdf" },
+                    { name: "Code", url: "https://github.com/Cloudy1225/SHiFT", icon: "fa-brands fa-github" }
+                ]
+            },
             {
                 title: "GS-Quant: Granular Semantic and Generative Structural Quantization for Knowledge Graph Completion",
                 authors: "Qizhuo Xie, <b>Yunhui Liu</b>, Yu Xing, Qianzi Hou, Xudong Jin, Tao Zheng, Tieke He",
@@ -1008,4 +1024,3 @@
     </script>
 </body>
 </html>
-
