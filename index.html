@@ -134,6 +134,36 @@
         .chinese-name {
             font-family: "STXingkai", "华文行楷", "Xingkai SC", "KaiTi", "楷体", serif;
         }
+
+        /* Visitor world map */
+        .profile-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #e2e8f0 transparent;
+        }
+        #visitor-card {
+            background: transparent;
+        }
+        #visitor-map {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        #visitor-map .visited { cursor: pointer; }
+        #visitor-tip {
+            display: none;
+            position: absolute;
+            z-index: 2;
+            pointer-events: none;
+            background: #fff;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 12px;
+            line-height: 1.35;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="bg-white text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-900">
@@ -142,7 +172,7 @@
 
         <!-- LEFT SIDEBAR (Profile) -->
         <aside class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
-            <div class="md:sticky md:top-8">
+            <div class="profile-scroll md:sticky md:top-8 md:max-h-[calc(100vh-4rem)] md:overflow-y-auto">
 
                 <!-- Profile Photo -->
                 <div class="gallery-container shadow-sm">
@@ -167,7 +197,7 @@
                     </div>
 
                     <!-- Social Links -->
-                    <div class="flex justify-center md:justify-start gap-4 mb-8">
+                    <div class="flex justify-center md:justify-start gap-4 mb-6">
                         <a href="mailto:lyhcloudy1225@gmail.com" class="text-gray-600 hover:text-accent transition-colors" title="Email">
                             <i class="fa-solid fa-envelope fa-lg"></i>
                         </a>
@@ -180,6 +210,19 @@
                         <a href="https://www.overleaf.com/read/hhkfxkdptjmd#596d6b" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-accent transition-colors" title="CV">
                             <i class="fa-solid fa-id-card fa-lg"></i>
                         </a>
+                    </div>
+
+                    <div id="visitor-card" class="relative">
+                        <div class="relative rounded-xl border border-slate-200 shadow-sm overflow-hidden bg-[#f4f7fb]">
+                            <svg id="visitor-map" role="img" aria-label="World map of visitors"></svg>
+                            <div class="absolute left-2 bottom-2 flex items-center gap-1.5 text-[10px] text-slate-400 pointer-events-none">
+                                <span>Fewer</span>
+                                <span class="h-1 w-10 rounded-full" style="background: linear-gradient(90deg, #93c5fd, #0a2245);"></span>
+                                <span>More</span>
+                            </div>
+                        </div>
+                        <div id="visitor-tip"></div>
+                        <p id="visitor-stats" class="mt-2 text-[11px] leading-relaxed text-gray-400 text-center md:text-left">Loading visitor map…</p>
                     </div>
                 </div>
             </div>
@@ -1086,6 +1129,263 @@
                 });
             }
         }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+    <script>
+        // Append-only log of approximate city + country. IP addresses are not stored.
+        const VISITOR_LOG = "https://crudcrud.com/api/f75b40fafa734bd1a759f91e7cfb6e05/visits";
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const svg = document.getElementById("visitor-map");
+            const card = document.getElementById("visitor-card");
+            const tip = document.getElementById("visitor-tip");
+            const stats = document.getElementById("visitor-stats");
+            if (!svg || typeof d3 === "undefined" || typeof topojson === "undefined") {
+                if (stats) stats.textContent = "Visitor map could not be loaded.";
+                return;
+            }
+
+            const root = d3.select(svg);
+            let worldFeatures = null;
+            let idByCc = new Map();
+            let summary = { countries: [], cities: [], visits: 0 };
+            let latestKey = null;
+
+            function summarize(visits) {
+                const countries = new Map();
+                const cities = new Map();
+                (Array.isArray(visits) ? visits : []).forEach(function (v) {
+                    if (!v || typeof v.cc !== "string" || !/^[A-Z]{2}$/.test(v.cc)) return;
+                    const lat = Number(v.lat);
+                    const lng = Number(v.lng);
+                    const country = countries.get(v.cc) || { cc: v.cc, country: v.country || v.cc, n: 0 };
+                    country.n += 1;
+                    if (v.country) country.country = v.country;
+                    countries.set(v.cc, country);
+                    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                        const key = lat.toFixed(1) + "," + lng.toFixed(1);
+                        const city = cities.get(key) || {
+                            key: key,
+                            lat: lat,
+                            lng: lng,
+                            city: v.city || "",
+                            country: v.country || v.cc,
+                            n: 0
+                        };
+                        city.n += 1;
+                        if (v.city) city.city = v.city;
+                        cities.set(key, city);
+                    }
+                });
+                return {
+                    countries: Array.from(countries.values()).sort(function (a, b) { return b.n - a.n; }),
+                    cities: Array.from(cities.values()),
+                    visits: Array.from(countries.values()).reduce(function (sum, c) { return sum + c.n; }, 0)
+                };
+            }
+
+            function placeTip(event, text) {
+                tip.textContent = text;
+                tip.style.display = "block";
+                const bounds = card.getBoundingClientRect();
+                const pad = 8;
+                let x = event.clientX - bounds.left + 14;
+                let y = event.clientY - bounds.top + 14;
+                const tw = tip.offsetWidth;
+                const th = tip.offsetHeight;
+                if (x + tw > bounds.width - pad) x = event.clientX - bounds.left - tw - 14;
+                if (y + th > bounds.height - pad) y = event.clientY - bounds.top - th - 14;
+                tip.style.left = Math.max(pad, x) + "px";
+                tip.style.top = Math.max(pad, y) + "px";
+            }
+
+            function hideTip() {
+                tip.style.display = "none";
+            }
+
+            function render() {
+                if (!worldFeatures) return;
+                const width = Math.max(card.clientWidth || 640, 280);
+                const height = Math.round(width * 0.46);
+                root.attr("viewBox", "0 0 " + width + " " + height);
+                root.selectAll("*").remove();
+
+                const projection = d3.geoNaturalEarth1().fitExtent(
+                    [[6, 6], [width - 6, height - 6]],
+                    { type: "Sphere" }
+                );
+                const path = d3.geoPath(projection);
+                const max = d3.max(summary.countries, function (d) { return d.n; }) || 1;
+                const color = d3.scaleSqrt().domain([1, max]).range(["#3b82f6", "#0a2245"]);
+                const countById = new Map();
+                summary.countries.forEach(function (c) {
+                    const id = idByCc.get(c.cc);
+                    if (id) countById.set(id, c);
+                });
+
+                root.append("path")
+                    .datum({ type: "Sphere" })
+                    .attr("d", path)
+                    .attr("fill", "#f4f7fb");
+
+                root.append("path")
+                    .datum(d3.geoGraticule10())
+                    .attr("d", path)
+                    .attr("fill", "none")
+                    .attr("stroke", "#e6edf5")
+                    .attr("stroke-width", 0.6);
+
+                root.selectAll("path.country")
+                    .data(worldFeatures)
+                    .join("path")
+                    .attr("class", "country")
+                    .attr("d", path)
+                    .attr("fill", function (d) {
+                        const hit = countById.get(String(d.id));
+                        return hit ? color(hit.n) : "#e7eef5";
+                    })
+                    .attr("stroke", "#ffffff")
+                    .attr("stroke-width", 0.7)
+                    .classed("visited", function (d) { return countById.has(String(d.id)); })
+                    .on("mousemove", function (event, d) {
+                        const hit = countById.get(String(d.id));
+                        if (!hit) { hideTip(); return; }
+                        const label = hit.n === 1 ? "1 visit" : hit.n + " visits";
+                        placeTip(event, hit.country + " · " + label);
+                    })
+                    .on("mouseleave", hideTip);
+
+                const dots = root.append("g");
+                summary.cities.forEach(function (city) {
+                    const xy = projection([city.lng, city.lat]);
+                    if (!xy) return;
+                    const radius = Math.min(7.5, 2.2 + Math.sqrt(city.n) * 1.35);
+                    if (city.key === latestKey) {
+                        const pulse = dots.append("circle")
+                            .attr("cx", xy[0])
+                            .attr("cy", xy[1])
+                            .attr("r", radius + 3)
+                            .attr("fill", "none")
+                            .attr("stroke", "#2563eb")
+                            .attr("stroke-width", 1.2);
+                        pulse.append("animate")
+                            .attr("attributeName", "r")
+                            .attr("values", (radius + 2) + ";" + (radius + 12))
+                            .attr("dur", "2.2s")
+                            .attr("repeatCount", "indefinite");
+                        pulse.append("animate")
+                            .attr("attributeName", "opacity")
+                            .attr("values", "0.65;0")
+                            .attr("dur", "2.2s")
+                            .attr("repeatCount", "indefinite");
+                    }
+                    const label = (city.city ? city.city + ", " : "") + city.country + " · " +
+                        (city.n === 1 ? "1 visit" : city.n + " visits");
+                    dots.append("circle")
+                        .attr("cx", xy[0])
+                        .attr("cy", xy[1])
+                        .attr("r", radius)
+                        .attr("fill", "#1d4ed8")
+                        .attr("stroke", "#ffffff")
+                        .attr("stroke-width", 1.3)
+                        .style("cursor", "pointer")
+                        .on("mousemove", function (event) {
+                            event.stopPropagation();
+                            placeTip(event, label);
+                        })
+                        .on("mouseleave", hideTip);
+                });
+
+                if (!summary.visits) {
+                    stats.textContent = "Waiting for the first visitor.";
+                    return;
+                }
+                const noun = summary.visits === 1 ? "visit" : "visits";
+                const place = summary.countries.length === 1 ? "country" : "countries";
+                const top = summary.countries.slice(0, 4).map(function (c) {
+                    return c.country + " " + c.n;
+                }).join(" · ");
+                stats.textContent = summary.visits + " " + noun + " from " + summary.countries.length + " " + place + " · " + top;
+            }
+
+            function rememberToday() {
+                const day = new Date().toISOString().slice(0, 10);
+                const key = "yunhui-visitor-" + day;
+                try {
+                    if (localStorage.getItem(key)) return null;
+                    localStorage.setItem(key, "1");
+                    return key;
+                } catch (e) {
+                    return key;
+                }
+            }
+
+            async function recordVisit() {
+                const storageKey = rememberToday();
+                if (!storageKey) return null;
+                let geo;
+                try {
+                    geo = await fetch("https://get.geojs.io/v1/ip/geo.json").then(function (r) { return r.json(); });
+                } catch (e) {
+                    try { localStorage.removeItem(storageKey); } catch (err) {}
+                    return null;
+                }
+                const cc = String(geo.country_code || "").toUpperCase();
+                const lat = Math.round(parseFloat(geo.latitude) * 10) / 10;
+                const lng = Math.round(parseFloat(geo.longitude) * 10) / 10;
+                if (!/^[A-Z]{2}$/.test(cc) || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+                    try { localStorage.removeItem(storageKey); } catch (e) {}
+                    return null;
+                }
+                const body = {
+                    cc: cc,
+                    country: String(geo.country || cc).slice(0, 60),
+                    city: String(geo.city || "").slice(0, 60),
+                    lat: lat,
+                    lng: lng
+                };
+                try {
+                    const res = await fetch(VISITOR_LOG, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body)
+                    });
+                    if (!res.ok) throw new Error("log failed");
+                    latestKey = lat.toFixed(1) + "," + lng.toFixed(1);
+                    return body;
+                } catch (e) {
+                    try { localStorage.removeItem(storageKey); } catch (err) {}
+                    return null;
+                }
+            }
+
+            Promise.all([
+                fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(function (r) { return r.json(); }),
+                fetch("https://cdn.jsdelivr.net/gh/lukes/ISO-3166-Countries-with-Regional-Codes@master/slim-2/slim-2.json").then(function (r) { return r.json(); }),
+                fetch(VISITOR_LOG).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+            ]).then(async function (loaded) {
+                const world = loaded[0];
+                const iso = loaded[1];
+                let visits = loaded[2];
+                worldFeatures = topojson.feature(world, world.objects.countries).features;
+                iso.forEach(function (row) {
+                    if (row["alpha-2"] && row["country-code"]) idByCc.set(row["alpha-2"], String(row["country-code"]));
+                });
+                const added = await recordVisit();
+                if (added) visits = visits.concat([added]);
+                summary = summarize(visits);
+                render();
+                if (window.ResizeObserver) {
+                    new ResizeObserver(function () { render(); }).observe(card);
+                } else {
+                    window.addEventListener("resize", render);
+                }
+            }).catch(function () {
+                stats.textContent = "Visitor map could not be loaded.";
+            });
+        });
     </script>
 </body>
 </html>
